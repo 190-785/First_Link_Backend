@@ -11,7 +11,7 @@ import os
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app, origins=["https://first-link-delta.vercel.app"])
+CORS(app, origins=["https://*.vercel.app"])
 app.config['ENV'] = os.getenv('FLASK_ENV', 'production')  # Default to production if not set
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'default_secret_key')
 
