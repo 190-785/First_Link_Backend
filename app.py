@@ -6,9 +6,15 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.chrome.options import Options
+from dotenv import load_dotenv
+import os
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
+app.config['ENV'] = os.getenv('FLASK_ENV', 'production')  # Default to production if not set
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'default_secret_key')
+
 
 # Function to run the Selenium script
 def start_wiki_traversal(start_url, max_iterations=50):
@@ -104,5 +110,10 @@ def traverse_wikipedia():
     result = start_wiki_traversal(start_url)  # Run the traversal function
     return jsonify(result)  # Return the results as JSON
 
-if __name__ == '__main__':
-    app.run(debug=True)
+@app.route('/api', methods=['GET'])
+def api():
+    return {"message": "Hello from Flask Backend!"}
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
