@@ -8,10 +8,13 @@ from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.chrome.options import Options
 from dotenv import load_dotenv
 import os
+import chromedriver_autoinstaller
+chromedriver_autoinstaller.install()  # Auto-download correct ChromeDriver
+
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app, origins=["https://*.vercel.app"])
+CORS(app, origins=["https://first-link-delta.vercel.app"], methods=["GET", "POST", "PUT", "DELETE"], supports_credentials=True)
 app.config['ENV'] = os.getenv('FLASK_ENV', 'production')  # Default to production if not set
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'default_secret_key')
 
