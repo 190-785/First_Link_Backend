@@ -6,7 +6,7 @@ ENV PYTHONUNBUFFERED=1 \
     LANG=C.UTF-8 \
     CHROME_DEB=google-chrome.deb
 
-# Install system dependencies for building and running
+# Install system dependencies required for building and running
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     ca-certificates \
@@ -26,7 +26,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Install Chrome and clean up unnecessary files
 RUN curl -sSL https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb -o $CHROME_DEB && \
-    apt-get install -y ./$CHROME_DEB && rm -f $CHROME_DEB
+    dpkg -i $CHROME_DEB || apt-get install -y -f && rm -f $CHROME_DEB
 
 # Install Python dependencies
 WORKDIR /app
