@@ -3,27 +3,34 @@
 # Log the PATH environment variable
 echo "PATH is: $PATH"
 
-# Check if Chrome is installed
-echo "Checking for Google Chrome..."
-which google-chrome || echo "Google Chrome not found"
+echo "Downloading Google Chrome..."
+mkdir -p /opt/chrome && \
+wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb -O /opt/chrome/google-chrome-stable_current_amd64.deb && \
+dpkg -x /opt/chrome/google-chrome-stable_current_amd64.deb /opt/chrome
 
-# Log Chrome version
-google-chrome --version || echo "Google Chrome version not found"
+echo "Setting up Chrome binary..."
+export CHROME_PATH="/opt/chrome/opt/google/chrome"
+export PATH="$CHROME_PATH:$PATH"
 
-# Check if Chromedriver is installed
-echo "Checking for Chromedriver..."
-which chromedriver || echo "Chromedriver not found"
+echo "Downloading Chromedriver..."
+mkdir -p /opt/chromedriver && \
+wget https://chromedriver.storage.googleapis.com/$(curl -s https://chromedriver.storage.googleapis.com/LATEST_RELEASE)/chromedriver_linux64.zip -O /opt/chromedriver/chromedriver.zip && \
+unzip /opt/chromedriver/chromedriver.zip -d /opt/chromedriver
 
-# Log Chromedriver version
-chromedriver --version || echo "Chromedriver version not found"
+echo "Setting up Chromedriver binary..."
+export CHROMEDRIVER_PATH="/opt/chromedriver"
+export PATH="$CHROMEDRIVER_PATH:$PATH"
 
-# Install Chrome if not found
-if ! which google-chrome; then
-    echo "Installing Google Chrome..."
-    apt-get update && apt-get install -y wget unzip
-    wget -q -O /tmp/google-chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-    apt-get install -y /tmp/google-chrome.deb || echo "Failed to install Chrome"
-fi
+echo "Checking installed versions..."
+"$CHROME_PATH/google-chrome" --version
+"$CHROMEDRIVER_PATH/chromedriver" --version
+
+# Clean up downloaded files to save storage space
+echo "Cleaning up downloaded files..."
+rm -rf /opt/chrome/google-chrome-stable_current_amd64.deb
+rm -rf /opt/chromedriver/chromedriver.zip
+
+echo "Cleanup complete!"
 
 # Ensure dependencies are installed
 echo "Installing Python dependencies..."

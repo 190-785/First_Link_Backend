@@ -37,7 +37,7 @@ def start_wiki_traversal(start_url, max_iterations=50):
     """
     # Set up Chrome options for headless operation
     chrome_options = Options()
-    chrome_options.binary_location = "/usr/bin/google-chrome"  # Specify the Chrome binary location
+    chrome_options.binary_location = "/opt/chrome/opt/google/chrome/google-chrome"
     chrome_options.add_argument("--headless")  # Run in headless mode
     chrome_options.add_argument("--no-sandbox")  # Required for certain environments
     chrome_options.add_argument("--disable-dev-shm-usage")  # Avoid shared memory issues
@@ -45,7 +45,10 @@ def start_wiki_traversal(start_url, max_iterations=50):
     chrome_options.add_argument("--window-size=1920,1080")  # Set window size
 
     # Initialize the Chrome driver with the specified options
-    driver = webdriver.Chrome(options=chrome_options)  # No need for `executable_path` if chromedriver_autoinstaller is used
+    driver = webdriver.Chrome(
+    service=ChromeService(executable_path="/opt/chromedriver/chromedriver"),
+    options=chrome_options
+)
 
     # Initialize traversal setup
     current_website = start_url
