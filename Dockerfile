@@ -31,6 +31,8 @@ RUN curl -sSL https://dl.google.com/linux/direct/google-chrome-stable_current_am
     rm google-chrome.deb
 
 # Install Python dependencies
+RUN pip install --no-cache-dir gunicorn
+
 COPY requirements.txt /app/requirements.txt
 WORKDIR /app
 RUN pip install --no-cache-dir -r requirements.txt && \
@@ -44,4 +46,5 @@ COPY . /app
 EXPOSE 5000
 
 # Command to run the app with Gunicorn
-CMD ["gunicorn", "-b", "0.0.0.0:5000", "app:app"]
+CMD ["/app/.venv/bin/gunicorn", "-b", "0.0.0.0:5000", "app:app"]
+
