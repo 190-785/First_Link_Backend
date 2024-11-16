@@ -4,7 +4,6 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.chrome.options import Options
 from dotenv import load_dotenv
 import os
@@ -23,120 +22,106 @@ load_dotenv()
 
 # Initialize Flask app
 app = Flask(__name__)
-CORS(
-    app,
-    resources={r"/*": {"origins": ["https://first-link-delta.vercel.app"]}},
-    supports_credentials=True,
-)
+CORS(app, resources={r"/*": {"origins": ["https://first-link-delta.vercel.app"]}}, supports_credentials=True)
 
-# Set app configurations
-app.config["ENV"] = os.getenv("FLASK_ENV", "production")
-app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "default_secret_key")
+# App configurations
+app.config.update({
+    "ENV": os.getenv("FLASK_ENV", "production"),
+    "SECRET_KEY": os.getenv("SECRET_KEY", "default_secret_key"),
+    "MAX_ITERATIONS": int(os.getenv("MAX_ITERATIONS", 50)),
+    "PHILOSOPHY_URL": "https://en.wikipedia.org/wiki/Philosophy",
+    "SELENIUM_WAIT_TIME": 10,
+})
 
-# Helper function to validate URLs
+# Validate Wikipedia URLs
 def is_valid_wikipedia_url(url):
     parsed_url = urlparse(url)
-    return parsed_url.scheme in ["http", "https"] and "en.wikipedia.org" in parsed_url.netloc
+    return parsed_url.scheme in {"http", "https"} and "en.wikipedia.org" in parsed_url.netloc
 
-# Main Wikipedia traversal function
-def start_wiki_traversal(start_url, max_iterations=50):
-    chrome_options = Options()
-    chrome_options.add_argument("--headless")
-    chrome_options.add_argument("--no-sandbox")
-    chrome_options.add_argument("--disable-dev-shm-usage")
-    chrome_options.add_argument("--disable-gpu")
-    chrome_options.add_argument("--window-size=1920,1080")
+# Setup Chrome driver
+def setup_driver():
+    options = Options()
+    options.add_argument("--headless=new")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--window-size=1920,1080")
+    return webdriver.Chrome(options=options)
 
-    driver = webdriver.Chrome(options=chrome_options)
+# Find the first valid Wikipedia anchor link in the content
+def find_first_anchor(driver):
+    try:
+        paragraphs = WebDriverWait(driver, app.config["SELENIUM_WAIT_TIME"]).until(
+            EC.presence_of_all_elements_located(
+                (By.XPATH, "//div[@id='mw-content-text']//p[not(contains(@class, 'mw-empty-elt'))]")
+            )
+        )
 
-    current_website = start_url
-    results = {"path": [], "steps": 0, "last_link": None}
+        for paragraph in paragraphs:
+            anchors = paragraph.find_elements(By.XPATH, "./a[not(ancestor::span) and not(ancestor::sup)]")
+            for anchor in anchors:
+                anchor_link = anchor.get_attribute("href")
+                if anchor_link and anchor_link.startswith("https://en.wikipedia.org/wiki/") and not anchor_link.startswith("https://en.wikipedia.org/wiki/Help:"):
+                    return anchor_link
+        return None
+    except Exception as e:
+        logging.error(f"Error finding anchor: {e}")
+        return None
+
+# Traverse Wikipedia pages
+def traverse_wikipedia(start_url, max_iterations):
+    driver = setup_driver()
     visited_urls = set()
-    loop_counter = 0
+    results = {"path": [], "steps": 0, "last_link": None}
 
     try:
-        while current_website != "https://en.wikipedia.org/wiki/Philosophy":
-            if current_website in visited_urls:
-                results["path"].append(current_website)
-                results["error"] = f"Traversal ended in a loop at: {current_website}"
-                break
+        current_url = start_url
 
-            visited_urls.add(current_website)
-            results["path"].append(current_website)
+        for step in range(max_iterations):
+            if current_url in visited_urls:
+                return {**results, "error": f"Traversal ended in a loop at: {current_url}"}
 
-            if loop_counter >= max_iterations:
-                results["error"] = "Maximum iterations reached, traversal stopped."
-                break
+            visited_urls.add(current_url)
+            results["path"].append(current_url)
 
-            loop_counter += 1
-            results["steps"] += 1
+            if current_url == app.config["PHILOSOPHY_URL"]:
+                results.update({"steps": step + 1, "last_link": current_url})
+                return results
 
-            driver.get(current_website)
+            driver.get(current_url)
+            next_url = find_first_anchor(driver)
 
-            paragraphs = WebDriverWait(driver, 10).until(
-                EC.presence_of_all_elements_located(
-                    (
-                        By.XPATH,
-                        "//div[@id='mw-content-text' and contains(@class, 'mw-body-content')]//p[not(contains(@class, 'mw-empty-elt'))]",
-                    )
-                )
-            )
+            if not next_url:
+                return {**results, "error": "No valid anchor link found in content."}
 
-            first_anchor_found = False
-            for paragraph in paragraphs:
-                anchors = paragraph.find_elements(
-                    By.XPATH,
-                    "./a[not(ancestor::span) and not(ancestor::sup)]",
-                )
-                for anchor in anchors:
-                    anchor_link = anchor.get_attribute("href")
-                    if anchor_link.startswith("https://en.wikipedia.org/wiki/Help:"):
-                        continue
-                    current_website = anchor_link
-                    results["last_link"] = current_website
-                    first_anchor_found = True
-                    break
-                if first_anchor_found:
-                    break
+            current_url = next_url
 
-            if not first_anchor_found:
-                results["error"] = "No valid direct anchor tag found in any paragraph."
-                break
+        return {**results, "error": "Maximum iterations reached."}
     except Exception as e:
-        logging.error(f"Error during traversal: {str(e)}")
-        results["error"] = f"An error occurred: {str(e)}"
+        logging.error(f"Traversal error: {e}")
+        return {**results, "error": f"An error occurred: {e}"}
     finally:
         driver.quit()
 
-    return results
-
 # API endpoint to start traversal
 @app.route("/start-traversal", methods=["POST"])
-def traverse_wikipedia():
-    try:
-        data = request.get_json()
-        start_url = data.get("start_url")
+def start_traversal():
+    data = request.get_json()
+    start_url = data.get("start_url")
 
-        if not start_url or not is_valid_wikipedia_url(start_url):
-            return jsonify({"error": "A valid Wikipedia URL is required."}), 400
+    if not start_url or not is_valid_wikipedia_url(start_url):
+        return jsonify({"error": "A valid Wikipedia URL is required."}), 400
 
-        max_iterations = int(os.getenv("MAX_ITERATIONS", 50))
-        result = start_wiki_traversal(start_url, max_iterations)
-        return jsonify(result)
-    except Exception as e:
-        logging.error(f"Unexpected error: {str(e)}")
-        return jsonify({"error": f"Internal server error: {str(e)}"}), 500
+    max_iterations = app.config["MAX_ITERATIONS"]
+    result = traverse_wikipedia(start_url, max_iterations)
+    return jsonify(result)
 
 # Health check endpoint
 @app.route("/health", methods=["GET"])
 def health_check():
-    try:
-        return jsonify({"status": "healthy"}), 200
-    except Exception as e:
-        logging.error(f"Health check error: {str(e)}")
-        return jsonify({"status": "unhealthy", "error": str(e)}), 500
+    return jsonify({"status": "healthy"}), 200
 
 # Run the app
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 10000))
+    port = int(os.getenv("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
