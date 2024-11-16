@@ -2,8 +2,8 @@
 FROM python:3.11-slim
 
 # Set environment variables
-ENV PYTHONUNBUFFERED 1
-ENV LANG C.UTF-8
+ENV PYTHONUNBUFFERED=1
+ENV LANG=C.UTF-8
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -27,7 +27,8 @@ RUN apt-get update && apt-get install -y \
 
 # Install Chrome
 RUN curl -sSL https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb -o google-chrome.deb && \
-    apt install ./google-chrome.deb && \
+    apt-get update && \
+    apt-get install -y ./google-chrome.deb && \
     rm google-chrome.deb
 
 # Set working directory
@@ -37,14 +38,11 @@ WORKDIR /app
 COPY requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Log installed packages
-RUN echo "Installed Python packages:" && pip freeze
-
 # Copy the Flask app code to the container
 COPY . /app/
 
-# Expose the port that Flask will run on
+# Expose the port
 EXPOSE 5000
 
 # Command to run the app with Gunicorn
-CMD ["bash", "-c", "web: gunicorn --bind 0.0.0.0:10000 app:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:10000", "app:app"]
