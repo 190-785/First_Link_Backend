@@ -37,3 +37,10 @@ rm -rf $CHROMEDRIVER_DIR/chromedriver.zip
 
 echo "Cleanup complete!"
 
+# Ensure dependencies are installed from requirements.txt
+echo "Installing Python dependencies..."
+pip install -r requirements.txt || exit 1
+
+# Run the application with gunicorn
+echo "Starting the application with gunicorn..."
+exec gunicorn app:app --bind 0.0.0.0:$PORT
