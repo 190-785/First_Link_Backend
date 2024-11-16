@@ -1,11 +1,11 @@
 # Use an official Python runtime as a parent image
 FROM python:3.11-slim
 
-# Set environment variables to prevent Python from writing pyc files and to force UTF-8 encoding
+# Set environment variables
 ENV PYTHONUNBUFFERED 1
 ENV LANG C.UTF-8
 
-# Install system dependencies for running Chrome
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     curl \
     unzip \
@@ -37,6 +37,9 @@ WORKDIR /app
 COPY requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Log installed packages
+RUN echo "Installed Python packages:" && pip freeze
+
 # Copy the Flask app code to the container
 COPY . /app/
 
@@ -45,4 +48,3 @@ EXPOSE 5000
 
 # Command to run the app with Gunicorn
 CMD ["gunicorn", "--bind", "0.0.0.0:10000", "app:app"]
-
