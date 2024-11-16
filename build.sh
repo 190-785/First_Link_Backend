@@ -41,6 +41,6 @@ echo "Cleanup complete!"
 echo "Installing Python dependencies..."
 pip install -r requirements.txt || exit 1
 
-# Run the application with gunicorn
-echo "Starting the application with gunicorn..."
-exec gunicorn app:app --bind 0.0.0.0:$PORT
+# # Run the application with gunicorn
+# echo "Starting the application with gunicorn..."
+# exec gunicorn app:app --bind 0.0.0.0:$PORT
