@@ -33,7 +33,9 @@ RUN curl -sSL https://dl.google.com/linux/direct/google-chrome-stable_current_am
 # Install Python dependencies
 COPY requirements.txt /app/requirements.txt
 WORKDIR /app
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt && \
+    pip show gunicorn
+
 
 # Copy the Flask app code to the container
 COPY . /app
@@ -41,5 +43,5 @@ COPY . /app
 # Expose the port that Flask will run on
 EXPOSE 5000
 
-# # Command to run the app with Gunicorn
-# CMD ["gunicorn", "-b", "0.0.0.0:5000", "app:app"]
+# Command to run the app with Gunicorn
+CMD ["gunicorn", "-b", "0.0.0.0:5000", "app:app"]
