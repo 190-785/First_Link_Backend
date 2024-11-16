@@ -1,14 +1,12 @@
 services:
   - type: web
     name: link-rule-flask-app
-    env: python
+    env: docker
     plan: free
-    buildCommand: "pip install -r requirements.txt"
-    startCommand: "gunicorn app:app"
     envVars:
       - key: FLASK_ENV
         value: production
       - key: SECRET_KEY
-        value: "20f796e58e3bc4d40f2a9c27fd5d9d40"  # replace with your actual secret key
+        value: "20f796e58e3bc4d40f2a9c27fd5d9d40"
     branches: 
       - main
