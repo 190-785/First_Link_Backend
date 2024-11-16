@@ -10,6 +10,8 @@ import os
 import chromedriver_autoinstaller
 import logging
 from urllib.parse import urlparse
+import re
+from selenium.common.exceptions import TimeoutException, NoSuchElementException
 
 # Automatically install the appropriate ChromeDriver
 chromedriver_autoinstaller.install()
@@ -22,7 +24,8 @@ load_dotenv()
 
 # Initialize Flask app
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": ["https://first-link-delta.vercel.app"]}}, supports_credentials=True)
+allowed_origins = os.getenv("ALLOWED_ORIGINS", "https://first-link-delta.vercel.app").split(",")
+CORS(app, resources={r"/*": {"origins": allowed_origins}}, supports_credentials=True)
 
 # App configurations
 app.config.update({
@@ -35,8 +38,8 @@ app.config.update({
 
 # Validate Wikipedia URLs
 def is_valid_wikipedia_url(url):
-    parsed_url = urlparse(url)
-    return parsed_url.scheme in {"http", "https"} and "en.wikipedia.org" in parsed_url.netloc
+    regex = r"^https?://en.wikipedia.org/wiki/[^ ]+$"
+    return bool(re.match(regex, url))
 
 # Setup Chrome driver
 def setup_driver():
@@ -53,8 +56,7 @@ def find_first_anchor(driver):
     try:
         paragraphs = WebDriverWait(driver, app.config["SELENIUM_WAIT_TIME"]).until(
             EC.presence_of_all_elements_located(
-                (By.XPATH, "//div[@id='mw-content-text']//p[not(contains(@class, 'mw-empty-elt'))]")
-            )
+                (By.XPATH, "//div[@id='mw-content-text']//p[not(contains(@class, 'mw-empty-elt'))]"))
         )
 
         for paragraph in paragraphs:
@@ -96,10 +98,16 @@ def traverse_wikipedia(start_url, max_iterations):
 
             current_url = next_url
 
-        return {**results, "error": "Maximum iterations reached."}
+        return {**results, "error": "Maximum iterations reached.", "visited_count": len(visited_urls)}
+    except TimeoutException as e:
+        logging.error(f"Timeout error while loading {current_url}: {e}")
+        return {**results, "error": "Timeout while loading page."}
+    except NoSuchElementException as e:
+        logging.error(f"Element not found on page {current_url}: {e}")
+        return {**results, "error": "Anchor element not found on the page."}
     except Exception as e:
-        logging.error(f"Traversal error: {e}")
-        return {**results, "error": f"An error occurred: {e}"}
+        logging.error(f"Unexpected error: {e}")
+        return {**results, "error": "An unexpected error occurred."}
     finally:
         driver.quit()
 
