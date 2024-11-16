@@ -25,8 +25,7 @@ load_dotenv()
 app = Flask(__name__)
 CORS(
     app,
-    origins=["https://first-link-delta.vercel.app"],
-    methods=["GET", "POST"],
+    resources={r"/*": {"origins": ["https://first-link-delta.vercel.app"]}},
     supports_credentials=True,
 )
 
