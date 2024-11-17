@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, make_response
 from flask_cors import CORS
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -227,29 +227,32 @@ def traverse_wikipedia(start_url, max_iterations):
             current_url = next_url
 
         return {**results, "error": "Maximum iterations reached.", "visited_count": len(visited_urls)}
-    except TimeoutException as e:
-        logging.error(f"Timeout error while loading {current_url}: {e}")
-        return {**results, "error": "Timeout while loading page."}
-    except NoSuchElementException as e:
-        logging.error(f"Element not found on page {current_url}: {e}")
-        return {**results, "error": "Anchor element not found on the page."}
-    except Exception as e:
-        logging.error(f"Unexpected error: {e}")
-        return {**results, "error": "An unexpected error occurred."}
+    except TimeoutException:
+        return {**results, "error": "Timed out while waiting for page content."}
     finally:
         driver.quit()
 
-# Define routes
-@app.route("/traverse", methods=["GET"])
-def traverse():
-    start_url = request.args.get("start_url")
-    max_iterations = int(request.args.get("max_iterations", app.config["MAX_ITERATIONS"]))
+# Handle CORS preflight (OPTIONS request)
+@app.before_request
+def before_request():
+    if request.method == "OPTIONS":
+        response = make_response()
+        response.headers['Access-Control-Allow-Origin'] = os.getenv("ALLOWED_ORIGINS", "https://first-link-delta.vercel.app")
+        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
+        return response
+
+# Route to start traversal
+@app.route("/start-traversal", methods=["POST"])
+def start_traversal():
+    data = request.get_json()
+    start_url = data.get("start_url", app.config["PHILOSOPHY_URL"])
 
     if not is_valid_wikipedia_url(start_url):
-        return jsonify({"error": "Invalid Wikipedia URL."}), 400
+        return jsonify({"error": "Invalid Wikipedia URL"}), 400
 
-    result = traverse_wikipedia(start_url, max_iterations)
+    result = traverse_wikipedia(start_url, app.config["MAX_ITERATIONS"])
     return jsonify(result)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, host="0.0.0.0", port=5000)
