@@ -11,7 +11,7 @@ import chromedriver_autoinstaller
 import logging
 from urllib.parse import urlparse
 import re
-from selenium.common.exceptions import TimeoutException, NoSuchElementException
+from selenium.common.exceptions import TimeoutException, NoSuchElementException, WebDriverException
 
 # Automatically install the appropriate ChromeDriver
 chromedriver_autoinstaller.install()
@@ -185,10 +185,12 @@ def traverse_wikipedia(start_url, max_iterations):
     # Check if starting from Philosophy and return the predefined Philosophy path directly
     if start_url == "https://en.wikipedia.org/wiki/Philosophy":
         results.update({"path": predefined_paths[start_url], "steps": len(predefined_paths[start_url]), "last_link": predefined_paths[start_url][-1]})
+        logging.info(f"Starting from Philosophy: Returning predefined path with {len(predefined_paths[start_url])} steps.")
         return results
 
     try:
         current_url = start_url
+        logging.info(f"Starting traversal from: {current_url}")
 
         for step in range(max_iterations):
             # Check if current URL matches a predefined path
@@ -201,10 +203,11 @@ def traverse_wikipedia(start_url, max_iterations):
                         visited_urls.add(url)
                         results["path"].append(url)
                         results["steps"] += 1
+                        logging.info(f"Step {results['steps']}: Added predefined URL: {url}")
                         current_url = url  # Move to the next URL in the predefined path
-                    # If we reach the Philosophy page, stop further traversal
                     if current_url == "https://en.wikipedia.org/wiki/Philosophy":
                         results.update({"steps": step + 1, "last_link": current_url})
+                        logging.info(f"Reached Philosophy URL: {current_url}")
                         return results
                 continue
 
@@ -213,9 +216,11 @@ def traverse_wikipedia(start_url, max_iterations):
 
             visited_urls.add(current_url)
             results["path"].append(current_url)
+            logging.info(f"Step {results['steps'] + 1}: Visiting URL: {current_url}")
 
             if current_url == app.config["PHILOSOPHY_URL"]:
                 results.update({"steps": step + 1, "last_link": current_url})
+                logging.info(f"Reached Philosophy URL: {current_url}")
                 return results
 
             driver.get(current_url)
@@ -229,9 +234,12 @@ def traverse_wikipedia(start_url, max_iterations):
         return {**results, "error": "Maximum iterations reached.", "visited_count": len(visited_urls)}
     except TimeoutException:
         return {**results, "error": "Timed out while waiting for page content."}
+    except WebDriverException as e:
+        logging.error(f"WebDriver exception: {e}")
+        return {**results, "error": "Error occurred with WebDriver."}
     finally:
         driver.quit()
-        
+
 # Handle CORS preflight (OPTIONS request)
 @app.before_request
 def before_request():
