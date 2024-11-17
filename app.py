@@ -202,6 +202,10 @@ def traverse_wikipedia(start_url, max_iterations):
                         results["path"].append(url)
                         results["steps"] += 1
                         current_url = url  # Move to the next URL in the predefined path
+                    # If we reach the Philosophy page, stop further traversal
+                    if current_url == "https://en.wikipedia.org/wiki/Philosophy":
+                        results.update({"steps": step + 1, "last_link": current_url})
+                        return results
                 continue
 
             if current_url in visited_urls:
@@ -227,9 +231,7 @@ def traverse_wikipedia(start_url, max_iterations):
         return {**results, "error": "Timed out while waiting for page content."}
     finally:
         driver.quit()
-
-
-
+        
 # Handle CORS preflight (OPTIONS request)
 @app.before_request
 def before_request():
