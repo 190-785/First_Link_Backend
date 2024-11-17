@@ -31,7 +31,7 @@ CORS(app, resources={r"/*": {"origins": allowed_origins}}, supports_credentials=
 app.config.update({
     "ENV": os.getenv("FLASK_ENV", "production"),
     "SECRET_KEY": os.getenv("SECRET_KEY", "default_secret_key"),
-    "MAX_ITERATIONS": int(os.getenv("MAX_ITERATIONS", 15)),
+    "MAX_ITERATIONS": int(os.getenv("MAX_ITERATIONS", 30)),
     "PHILOSOPHY_URL": "https://en.wikipedia.org/wiki/Philosophy",
     "SELENIUM_WAIT_TIME": 10,
 })
