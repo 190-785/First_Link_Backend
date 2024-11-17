@@ -195,17 +195,11 @@ def traverse_wikipedia(start_url, max_iterations):
             if current_url in predefined_paths:
                 predefined_path = predefined_paths[current_url]
                 
-                # Check if the next URL in the predefined path is a loop or points to another path
-                next_url = predefined_path[0]
-                
-                if next_url in visited_urls:
-                    return {**results, "error": f"Traversal ended in a loop at: {current_url}"}
-                
                 # Add the predefined path to the traversal path
                 visited_urls.add(current_url)
-                results["path"].append(current_url)
-                results["steps"] = step + 1
-                current_url = next_url
+                results["path"].extend(predefined_path)  # Use extend to append all predefined links
+                results["steps"] += len(predefined_path)
+                current_url = predefined_path[-1]  # Set last link as the last element of the predefined path
                 continue
 
             if current_url in visited_urls:
@@ -231,6 +225,7 @@ def traverse_wikipedia(start_url, max_iterations):
         return {**results, "error": "Timed out while waiting for page content."}
     finally:
         driver.quit()
+
 
 # Handle CORS preflight (OPTIONS request)
 @app.before_request
