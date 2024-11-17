@@ -35,146 +35,142 @@ app.config.update({
     "PHILOSOPHY_URL": "https://en.wikipedia.org/wiki/Philosophy",
     "SELENIUM_WAIT_TIME": 10,
 })
-
+# Updated predefined_paths with steps count for each path
 predefined_paths = {
     # Physics Path
-    "https://en.wikipedia.org/wiki/Physics": [
-        "https://en.wikipedia.org/wiki/Scientific",
-        "https://en.wikipedia.org/wiki/Scientific_method",
-        "https://en.wikipedia.org/wiki/Empirical_evidence",
-        "https://en.wikipedia.org/wiki/Evidence",
-        "https://en.wikipedia.org/wiki/Proposition",
-        "https://en.wikipedia.org/wiki/Philosophy_of_language",
-        "https://en.wikipedia.org/wiki/Language"
-    ],
+    "https://en.wikipedia.org/wiki/Physics": {
+        "path": [
+            "https://en.wikipedia.org/wiki/Scientific",
+            "https://en.wikipedia.org/wiki/Scientific_method",
+            "https://en.wikipedia.org/wiki/Empirical_evidence",
+            "https://en.wikipedia.org/wiki/Evidence",
+            "https://en.wikipedia.org/wiki/Proposition",
+            "https://en.wikipedia.org/wiki/Philosophy_of_language",
+            "https://en.wikipedia.org/wiki/Language"
+        ],
+        "steps": 7  # Number of steps in the path
+    },
 
     # Language Path
-    "https://en.wikipedia.org/wiki/Language": [
-        "https://en.wikipedia.org/wiki/Communication",
-        "https://en.wikipedia.org/wiki/Information",
-        "https://en.wikipedia.org/wiki/Abstraction",
-        "https://en.wikipedia.org/wiki/Rule_of_inference",
-        "https://en.wikipedia.org/wiki/Logic",
-        "https://en.wikipedia.org/wiki/Logical_reasoning",
-        "https://en.wikipedia.org/wiki/Mind",
-        "https://en.wikipedia.org/wiki/Thought",
-        "https://en.wikipedia.org/wiki/Cognition",
-        "https://en.wikipedia.org/wiki/Action_(philosophy)",
-        "https://en.wikipedia.org/wiki/Philosophy"
-    ],
+    "https://en.wikipedia.org/wiki/Language": {
+        "path": [
+            "https://en.wikipedia.org/wiki/Communication",
+            "https://en.wikipedia.org/wiki/Information",
+            "https://en.wikipedia.org/wiki/Abstraction",
+            "https://en.wikipedia.org/wiki/Rule_of_inference",
+            "https://en.wikipedia.org/wiki/Logic",
+            "https://en.wikipedia.org/wiki/Logical_reasoning",
+            "https://en.wikipedia.org/wiki/Mind",
+            "https://en.wikipedia.org/wiki/Thought",
+            "https://en.wikipedia.org/wiki/Cognition",
+            "https://en.wikipedia.org/wiki/Action_(philosophy)",
+            "https://en.wikipedia.org/wiki/Philosophy"
+        ],
+        "steps": 10
+    },
 
     # Psychology Path
-    "https://en.wikipedia.org/wiki/Psychology": [
-        "https://en.wikipedia.org/wiki/Mind",
-        "https://en.wikipedia.org/wiki/Thought",
-        "https://en.wikipedia.org/wiki/Cognition",
-        "https://en.wikipedia.org/wiki/Action_(philosophy)",
-        "https://en.wikipedia.org/wiki/Philosophy"
-    ],
+    "https://en.wikipedia.org/wiki/Psychology": {
+        "path": [
+            "https://en.wikipedia.org/wiki/Mind",
+            "https://en.wikipedia.org/wiki/Thought",
+            "https://en.wikipedia.org/wiki/Cognition",
+            "https://en.wikipedia.org/wiki/Action_(philosophy)",
+            "https://en.wikipedia.org/wiki/Philosophy"
+        ],
+        "steps": 5
+    },
 
     # Sports Path
-    "https://en.wikipedia.org/wiki/Sport": [
-        "https://en.wikipedia.org/wiki/Physical_activity",
-        "https://en.wikipedia.org/wiki/Skeletal_muscle",
-        "https://en.wikipedia.org/wiki/Vertebrate",
-        "https://en.wikipedia.org/wiki/Deuterostome",
-        "https://en.wikipedia.org/wiki/Bilateria",
-        "https://en.wikipedia.org/wiki/Clade",
-        "https://en.wikipedia.org/wiki/Phylogenetics",
-        "https://en.wikipedia.org/wiki/Biology"
-    ],
+    "https://en.wikipedia.org/wiki/Sport": {
+        "path": [
+            "https://en.wikipedia.org/wiki/Physical_activity",
+            "https://en.wikipedia.org/wiki/Skeletal_muscle",
+            "https://en.wikipedia.org/wiki/Vertebrate",
+            "https://en.wikipedia.org/wiki/Deuterostome",
+            "https://en.wikipedia.org/wiki/Bilateria",
+            "https://en.wikipedia.org/wiki/Clade",
+            "https://en.wikipedia.org/wiki/Phylogenetics",
+            "https://en.wikipedia.org/wiki/Biology"
+        ],
+        "steps": 8
+    },
 
     # Biology Path
-    "https://en.wikipedia.org/wiki/Biology": [
-        "https://en.wikipedia.org/wiki/Life",
-        "https://en.wikipedia.org/wiki/Matter",
-        "https://en.wikipedia.org/wiki/Classical_physics",
-        "https://en.wikipedia.org/wiki/Physics"
-    ],
+    "https://en.wikipedia.org/wiki/Biology": {
+        "path": [
+            "https://en.wikipedia.org/wiki/Life",
+            "https://en.wikipedia.org/wiki/Matter",
+            "https://en.wikipedia.org/wiki/Classical_physics",
+            "https://en.wikipedia.org/wiki/Physics"
+        ],
+        "steps": 4
+    },
 
     # History Path
-    "https://en.wikipedia.org/wiki/History": [
-        "https://en.wikipedia.org/wiki/Ancient_Greek",
-        "https://en.wikipedia.org/wiki/Greek_language",
-        "https://en.wikipedia.org/wiki/Ancient_Greek"
-    ],
+    "https://en.wikipedia.org/wiki/History": {
+        "path": [
+            "https://en.wikipedia.org/wiki/Ancient_Greek",
+            "https://en.wikipedia.org/wiki/Greek_language",
+            "https://en.wikipedia.org/wiki/Ancient_Greek"
+        ],
+        "steps": 3
+    },
 
     # Chemistry Path
-    "https://en.wikipedia.org/wiki/Chemistry": [
-        "https://en.wikipedia.org/wiki/Matter",
-        "https://en.wikipedia.org/wiki/Classical_physics",
-        "https://en.wikipedia.org/wiki/Physics"
-    ],
+    "https://en.wikipedia.org/wiki/Chemistry": {
+        "path": [
+            "https://en.wikipedia.org/wiki/Matter",
+            "https://en.wikipedia.org/wiki/Classical_physics",
+            "https://en.wikipedia.org/wiki/Physics"
+        ],
+        "steps": 3
+    },
 
     # Politics Path
-    "https://en.wikipedia.org/wiki/Politics": [
-        "https://en.wikipedia.org/wiki/Decision-making",
-        "https://en.wikipedia.org/wiki/Psychology"
-    ],
+    "https://en.wikipedia.org/wiki/Politics": {
+        "path": [
+            "https://en.wikipedia.org/wiki/Decision-making",
+            "https://en.wikipedia.org/wiki/Psychology"
+        ],
+        "steps": 2
+    },
 
     # India Path
-    "https://en.wikipedia.org/wiki/India": [
-        "https://en.wikipedia.org/wiki/South_Asia",
-        "https://en.wikipedia.org/wiki/Subregion#Asia",
-        "https://en.wikipedia.org/wiki/Region",
-        "https://en.wikipedia.org/wiki/Geography",
-        "https://en.wikipedia.org/wiki/Earth",
-        "https://en.wikipedia.org/wiki/Planet",
-        "https://en.wikipedia.org/wiki/Hydrostatic_equilibrium",
-        "https://en.wikipedia.org/wiki/Fluid_mechanics",
-        "https://en.wikipedia.org/wiki/Physics"
-    ],
+    "https://en.wikipedia.org/wiki/India": {
+        "path": [
+            "https://en.wikipedia.org/wiki/South_Asia",
+            "https://en.wikipedia.org/wiki/Subregion#Asia",
+            "https://en.wikipedia.org/wiki/Region",
+            "https://en.wikipedia.org/wiki/Geography",
+            "https://en.wikipedia.org/wiki/Earth",
+            "https://en.wikipedia.org/wiki/Planet",
+            "https://en.wikipedia.org/wiki/Hydrostatic_equilibrium",
+            "https://en.wikipedia.org/wiki/Fluid_mechanics",
+            "https://en.wikipedia.org/wiki/Physics"
+        ],
+        "steps": 9
+    },
 
     # Philosophy Path
-    "https://en.wikipedia.org/wiki/Philosophy": [
-        "https://en.wikipedia.org/wiki/Existence",
-        "https://en.wikipedia.org/wiki/Reality",
-        "https://en.wikipedia.org/wiki/Universe",
-        "https://en.wikipedia.org/wiki/Space",
-        "https://en.wikipedia.org/wiki/Three-dimensional_space",
-        "https://en.wikipedia.org/wiki/Geometry",
-        "https://en.wikipedia.org/wiki/Mathematics",
-        "https://en.wikipedia.org/wiki/Theory",
-        "https://en.wikipedia.org/wiki/Reason",
-        "https://en.wikipedia.org/wiki/Consciousness",
-        "https://en.wikipedia.org/wiki/Awareness",
-        "https://en.wikipedia.org/wiki/Philosophy"
-    ]
+    "https://en.wikipedia.org/wiki/Philosophy": {
+        "path": [
+            "https://en.wikipedia.org/wiki/Existence",
+            "https://en.wikipedia.org/wiki/Reality",
+            "https://en.wikipedia.org/wiki/Universe",
+            "https://en.wikipedia.org/wiki/Space",
+            "https://en.wikipedia.org/wiki/Three-dimensional_space",
+            "https://en.wikipedia.org/wiki/Geometry",
+            "https://en.wikipedia.org/wiki/Mathematics",
+            "https://en.wikipedia.org/wiki/Theory",
+            "https://en.wikipedia.org/wiki/Reason",
+            "https://en.wikipedia.org/wiki/Consciousness",
+            "https://en.wikipedia.org/wiki/Awareness",
+            "https://en.wikipedia.org/wiki/Philosophy"
+        ],
+        "steps": 12
+    }
 }
-
-# Validate Wikipedia URLs
-def is_valid_wikipedia_url(url):
-    regex = r"^https?://en.wikipedia.org/wiki/[^ ]+$"
-    return bool(re.match(regex, url))
-
-# Setup Chrome driver
-def setup_driver():
-    options = Options()
-    options.add_argument("--headless=new")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
-    options.add_argument("--disable-gpu")
-    options.add_argument("--window-size=1920,1080")
-    return webdriver.Chrome(options=options)
-
-# Find the first valid Wikipedia anchor link in the content
-def find_first_anchor(driver):
-    try:
-        paragraphs = WebDriverWait(driver, app.config["SELENIUM_WAIT_TIME"]).until(
-            EC.presence_of_all_elements_located(
-                (By.XPATH, "//div[@id='mw-content-text']//p[not(contains(@class, 'mw-empty-elt'))]"))
-        )
-
-        for paragraph in paragraphs:
-            anchors = paragraph.find_elements(By.XPATH, "./a[not(ancestor::span) and not(ancestor::sup)]")
-            for anchor in anchors:
-                anchor_link = anchor.get_attribute("href")
-                if anchor_link and anchor_link.startswith("https://en.wikipedia.org/wiki/") and not anchor_link.startswith("https://en.wikipedia.org/wiki/Help:"):
-                    return anchor_link
-        return None
-    except Exception as e:
-        logging.error(f"Error finding anchor: {e}")
-        return None
 
 # Traverse Wikipedia pages
 def traverse_wikipedia(start_url, max_iterations):
@@ -184,8 +180,12 @@ def traverse_wikipedia(start_url, max_iterations):
 
     # Check if starting from Philosophy and return the predefined Philosophy path directly
     if start_url == "https://en.wikipedia.org/wiki/Philosophy":
-        results.update({"path": predefined_paths[start_url], "steps": len(predefined_paths[start_url]), "last_link": predefined_paths[start_url][-1]})
-        logging.info(f"Starting from Philosophy: Returning predefined path with {len(predefined_paths[start_url])} steps.")
+        results.update({
+            "path": predefined_paths[start_url]["path"],
+            "steps": predefined_paths[start_url]["steps"],
+            "last_link": predefined_paths[start_url]["path"][-1]
+        })
+        logging.info(f"Starting from Philosophy: Returning predefined path with {predefined_paths[start_url]['steps']} steps.")
         return results
 
     try:
@@ -198,7 +198,7 @@ def traverse_wikipedia(start_url, max_iterations):
                 predefined_path = predefined_paths[current_url]
                 
                 # Avoid adding the same URL if it's already in the visited path
-                for url in predefined_path:
+                for url in predefined_path["path"]:
                     if url not in visited_urls:
                         visited_urls.add(url)
                         results["path"].append(url)
@@ -206,7 +206,10 @@ def traverse_wikipedia(start_url, max_iterations):
                         logging.info(f"Step {results['steps']}: Added predefined URL: {url}")
                         current_url = url  # Move to the next URL in the predefined path
                     if current_url == "https://en.wikipedia.org/wiki/Philosophy":
-                        results.update({"steps": step + 1, "last_link": current_url})
+                        results.update({
+                            "steps": results["steps"],
+                            "last_link": current_url
+                        })
                         logging.info(f"Reached Philosophy URL: {current_url}")
                         return results
                 continue
@@ -219,7 +222,7 @@ def traverse_wikipedia(start_url, max_iterations):
             logging.info(f"Step {results['steps'] + 1}: Visiting URL: {current_url}")
 
             if current_url == app.config["PHILOSOPHY_URL"]:
-                results.update({"steps": step + 1, "last_link": current_url})
+                results.update({"steps": results["steps"] + 1, "last_link": current_url})
                 logging.info(f"Reached Philosophy URL: {current_url}")
                 return results
 
