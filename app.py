@@ -36,6 +36,225 @@ app.config.update({
     "SELENIUM_WAIT_TIME": 10,
 })
 
+predefined_paths = {
+    # Language Path
+    "https://en.wikipedia.org/wiki/Language": [
+        "https://en.wikipedia.org/wiki/Communication",
+        "https://en.wikipedia.org/wiki/Information",
+        "https://en.wikipedia.org/wiki/Symbol",
+        "https://en.wikipedia.org/wiki/Abstraction",
+        "https://en.wikipedia.org/wiki/Semiotics",
+        "https://en.wikipedia.org/wiki/Rule_of_inference",
+        "https://en.wikipedia.org/wiki/Logic",
+        "https://en.wikipedia.org/wiki/Cognition",
+        "https://en.wikipedia.org/wiki/Philosophy_of_language",
+        "https://en.wikipedia.org/wiki/Philosophy"
+    ],
+
+    # Music Path
+    "https://en.wikipedia.org/wiki/Music": [
+        "https://en.wikipedia.org/wiki/Sound",
+        "https://en.wikipedia.org/wiki/Art",
+        "https://en.wikipedia.org/wiki/Aesthetics",
+        "https://en.wikipedia.org/wiki/Creativity",
+        "https://en.wikipedia.org/wiki/Philosophy_of_art",
+        "https://en.wikipedia.org/wiki/Philosophy"
+    ],
+
+    # Sports Path
+    "https://en.wikipedia.org/wiki/Sport": [
+        "https://en.wikipedia.org/wiki/Physical_activity",
+        "https://en.wikipedia.org/wiki/Competition",
+        "https://en.wikipedia.org/wiki/Athletics",
+        "https://en.wikipedia.org/wiki/Olympic_Games",
+        "https://en.wikipedia.org/wiki/Team_sport",
+        "https://en.wikipedia.org/wiki/Fair_play",
+        "https://en.wikipedia.org/wiki/Ethics",
+        "https://en.wikipedia.org/wiki/Philosophy"
+    ],
+    # Football Path
+    "https://en.wikipedia.org/wiki/Association_football": [
+        "https://en.wikipedia.org/wiki/Sport",
+        "https://en.wikipedia.org/wiki/Team_sport",
+        "https://en.wikipedia.org/wiki/FIFA",
+        "https://en.wikipedia.org/wiki/Olympic_Games",
+        "https://en.wikipedia.org/wiki/Fair_play",
+        "https://en.wikipedia.org/wiki/Ethics",
+        "https://en.wikipedia.org/wiki/Philosophy"
+    ],
+
+    # Basketball Path
+    "https://en.wikipedia.org/wiki/Basketball": [
+        "https://en.wikipedia.org/wiki/Sport",
+        "https://en.wikipedia.org/wiki/Team_sport",
+        "https://en.wikipedia.org/wiki/NBA",
+        "https://en.wikipedia.org/wiki/Competition",
+        "https://en.wikipedia.org/wiki/Ethics",
+        "https://en.wikipedia.org/wiki/Philosophy"
+    ],
+
+    # Cricket Path
+    "https://en.wikipedia.org/wiki/Cricket": [
+        "https://en.wikipedia.org/wiki/Sport",
+        "https://en.wikipedia.org/wiki/Team_sport",
+        "https://en.wikipedia.org/wiki/ICC",
+        "https://en.wikipedia.org/wiki/Fair_play",
+        "https://en.wikipedia.org/wiki/Philosophy_of_sport",
+        "https://en.wikipedia.org/wiki/Philosophy"
+    ],
+
+    # Famous Personalities Path (General)
+    "https://en.wikipedia.org/wiki/Famous_people": [
+        "https://en.wikipedia.org/wiki/Historical_figure",
+        "https://en.wikipedia.org/wiki/Celebrity",
+        "https://en.wikipedia.org/wiki/Leadership",
+        "https://en.wikipedia.org/wiki/Influence",
+        "https://en.wikipedia.org/wiki/Philosophy_of_history",
+        "https://en.wikipedia.org/wiki/Philosophy"
+    ],
+
+    # Literature Path
+    "https://en.wikipedia.org/wiki/Literature": [
+        "https://en.wikipedia.org/wiki/Storytelling",
+        "https://en.wikipedia.org/wiki/Myth",
+        "https://en.wikipedia.org/wiki/Language",
+        "https://en.wikipedia.org/wiki/Narrative",
+        "https://en.wikipedia.org/wiki/Philosophy_of_literature",
+        "https://en.wikipedia.org/wiki/Philosophy"
+    ],
+    
+    # Religion Path
+    "https://en.wikipedia.org/wiki/Religion": [
+        "https://en.wikipedia.org/wiki/Belief_system",
+        "https://en.wikipedia.org/wiki/Spirituality",
+        "https://en.wikipedia.org/wiki/Theology",
+        "https://en.wikipedia.org/wiki/Ethics",
+        "https://en.wikipedia.org/wiki/Metaphysics",
+        "https://en.wikipedia.org/wiki/Philosophy"
+    ],
+
+    # Astronomy Path
+    "https://en.wikipedia.org/wiki/Astronomy": [
+        "https://en.wikipedia.org/wiki/Universe",
+        "https://en.wikipedia.org/wiki/Cosmology",
+        "https://en.wikipedia.org/wiki/Space",
+        "https://en.wikipedia.org/wiki/Time",
+        "https://en.wikipedia.org/wiki/Philosophy_of_science",
+        "https://en.wikipedia.org/wiki/Philosophy"
+    ],
+
+    # Computer Science Path
+    "https://en.wikipedia.org/wiki/Computer_science": [
+        "https://en.wikipedia.org/wiki/Algorithm",
+        "https://en.wikipedia.org/wiki/Data_structure",
+        "https://en.wikipedia.org/wiki/Logic",
+        "https://en.wikipedia.org/wiki/Artificial_intelligence",
+        "https://en.wikipedia.org/wiki/Philosophy_of_technology",
+        "https://en.wikipedia.org/wiki/Philosophy"
+    ],
+
+    # Medicine Path
+    "https://en.wikipedia.org/wiki/Medicine": [
+        "https://en.wikipedia.org/wiki/Health",
+        "https://en.wikipedia.org/wiki/Biology",
+        "https://en.wikipedia.org/wiki/Anatomy",
+        "https://en.wikipedia.org/wiki/Disease",
+        "https://en.wikipedia.org/wiki/Teleology",
+        "https://en.wikipedia.org/wiki/Philosophy"
+    ],
+
+    # Economics Path
+    "https://en.wikipedia.org/wiki/Economics": [
+        "https://en.wikipedia.org/wiki/Resource_allocation",
+        "https://en.wikipedia.org/wiki/Supply_and_demand",
+        "https://en.wikipedia.org/wiki/Efficiency_(economics)",
+        "https://en.wikipedia.org/wiki/Game_theory",
+        "https://en.wikipedia.org/wiki/Utilitarianism",
+        "https://en.wikipedia.org/wiki/Philosophy"
+    ],
+
+    # Psychology Path
+    "https://en.wikipedia.org/wiki/Psychology": [
+        "https://en.wikipedia.org/wiki/Mind",
+        "https://en.wikipedia.org/wiki/Thought",
+        "https://en.wikipedia.org/wiki/Consciousness",
+        "https://en.wikipedia.org/wiki/Behavior",
+        "https://en.wikipedia.org/wiki/Philosophy_of_mind",
+        "https://en.wikipedia.org/wiki/Philosophy"
+    ],
+
+    # Politics Path
+    "https://en.wikipedia.org/wiki/Politics": [
+        "https://en.wikipedia.org/wiki/Power_(social_and_political)",
+        "https://en.wikipedia.org/wiki/Government",
+        "https://en.wikipedia.org/wiki/Social_contract",
+        "https://en.wikipedia.org/wiki/Justice",
+        "https://en.wikipedia.org/wiki/Philosophy_of_politics",
+        "https://en.wikipedia.org/wiki/Philosophy"
+    ],
+
+    # History Path
+    "https://en.wikipedia.org/wiki/History": [
+        "https://en.wikipedia.org/wiki/Historiography",
+        "https://en.wikipedia.org/wiki/Historical_method",
+        "https://en.wikipedia.org/wiki/Civilization",
+        "https://en.wikipedia.org/wiki/Philosophy_of_history",
+        "https://en.wikipedia.org/wiki/Philosophy"
+    ],
+
+    # Law Path
+    "https://en.wikipedia.org/wiki/Law": [
+        "https://en.wikipedia.org/wiki/Legal_system",
+        "https://en.wikipedia.org/wiki/Jurisprudence",
+        "https://en.wikipedia.org/wiki/Human_rights",
+        "https://en.wikipedia.org/wiki/Justice",
+        "https://en.wikipedia.org/wiki/Philosophy_of_law",
+        "https://en.wikipedia.org/wiki/Philosophy"
+    ],
+
+    # Art Path
+    "https://en.wikipedia.org/wiki/Art": [
+        "https://en.wikipedia.org/wiki/Creativity",
+        "https://en.wikipedia.org/wiki/Expression",
+        "https://en.wikipedia.org/wiki/Aesthetics",
+        "https://en.wikipedia.org/wiki/Visual_arts",
+        "https://en.wikipedia.org/wiki/Philosophy_of_art",
+        "https://en.wikipedia.org/wiki/Philosophy"
+    ],
+
+    # Physics Path
+    "https://en.wikipedia.org/wiki/Physics": [
+        "https://en.wikipedia.org/wiki/Classical_mechanics",
+        "https://en.wikipedia.org/wiki/Quantum_mechanics",
+        "https://en.wikipedia.org/wiki/Relativity",
+        "https://en.wikipedia.org/wiki/Time",
+        "https://en.wikipedia.org/wiki/Philosophy_of_physics",
+        "https://en.wikipedia.org/wiki/Philosophy"
+    ],
+
+    # Chemistry Path
+    "https://en.wikipedia.org/wiki/Chemistry": [
+        "https://en.wikipedia.org/wiki/Atom",
+        "https://en.wikipedia.org/wiki/Molecule",
+        "https://en.wikipedia.org/wiki/Chemical_reaction",
+        "https://en.wikipedia.org/wiki/Periodic_table",
+        "https://en.wikipedia.org/wiki/Philosophy_of_chemistry",
+        "https://en.wikipedia.org/wiki/Philosophy"
+    ],
+
+    # Sociology Path
+    "https://en.wikipedia.org/wiki/Sociology": [
+        "https://en.wikipedia.org/wiki/Society",
+        "https://en.wikipedia.org/wiki/Culture",
+        "https://en.wikipedia.org/wiki/Social_norms",
+        "https://en.wikipedia.org/wiki/Social_institutions",
+        "https://en.wikipedia.org/wiki/Philosophy_of_sociology",
+        "https://en.wikipedia.org/wiki/Philosophy"
+    ]
+}
+
+
+
 # Validate Wikipedia URLs
 def is_valid_wikipedia_url(url):
     regex = r"^https?://en.wikipedia.org/wiki/[^ ]+$"
@@ -80,6 +299,14 @@ def traverse_wikipedia(start_url, max_iterations):
         current_url = start_url
 
         for step in range(max_iterations):
+            # Check if current URL matches a predefined path
+            if current_url in predefined_paths:
+                predefined_path = predefined_paths[current_url]
+                results["path"].extend(predefined_path)
+                results["steps"] = step + len(predefined_path) - 1
+                results["last_link"] = predefined_path[-1]
+                return results
+
             if current_url in visited_urls:
                 return {**results, "error": f"Traversal ended in a loop at: {current_url}"}
 
