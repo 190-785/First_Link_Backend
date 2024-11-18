@@ -18,9 +18,7 @@ RUN apt-get update && apt-get install -y \
     libx11-xcb1 \
     libxss1 \
     libappindicator3-1 \
-    libindicator7 \
     fonts-liberation \
-    libappindicator3-1 \
     xdg-utils \
     chromium-driver \
     && rm -rf /var/lib/apt/lists/*
@@ -44,9 +42,6 @@ COPY . /app
 
 # Expose port 10000 (or whichever port your app runs on)
 EXPOSE 10000
-
-# Set environment variable to tell Flask it's in production (optional)
-ENV FLASK_ENV=production
 
 # Run the Flask app with Gunicorn for production use
 CMD ["gunicorn", "--bind", "0.0.0.0:10000", "app:app"]
