@@ -4,6 +4,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.options import Options  # Correctly imported
 from dotenv import load_dotenv
 import os
 import chromedriver_autoinstaller
@@ -35,7 +36,6 @@ app.config.update({
     "SELENIUM_WAIT_TIME": 10,
 })
 
-# Predefined paths with steps count for each path
 predefined_paths = {
     # Physics Path
     "https://en.wikipedia.org/wiki/Physics": {
@@ -69,6 +69,52 @@ predefined_paths = {
         "steps": 10
     },
 
+    # Mathematics Path
+    "https://en.wikipedia.org/wiki/Mathematics": {
+        "path": [
+            "https://en.wikipedia.org/wiki/Abstract_structure",
+            "https://en.wikipedia.org/wiki/Logic",
+            "https://en.wikipedia.org/wiki/Philosophy"
+        ],
+        "steps": 3
+    },
+
+    # Science Path
+    "https://en.wikipedia.org/wiki/Science": {
+        "path": [
+            "https://en.wikipedia.org/wiki/Empirical_evidence",
+            "https://en.wikipedia.org/wiki/Observation",
+            "https://en.wikipedia.org/wiki/Experiment",
+            "https://en.wikipedia.org/wiki/Scientific_method",
+            "https://en.wikipedia.org/wiki/Philosophy"
+        ],
+        "steps": 5
+    },
+
+    # Art Path
+    "https://en.wikipedia.org/wiki/Art": {
+        "path": [
+            "https://en.wikipedia.org/wiki/Aesthetics",
+            "https://en.wikipedia.org/wiki/Perception",
+            "https://en.wikipedia.org/wiki/Experience",
+            "https://en.wikipedia.org/wiki/Knowledge",
+            "https://en.wikipedia.org/wiki/Epistemology",
+            "https://en.wikipedia.org/wiki/Philosophy"
+        ],
+        "steps": 6
+    },
+
+    # Music Path
+    "https://en.wikipedia.org/wiki/Music": {
+        "path": [
+            "https://en.wikipedia.org/wiki/Performing_arts",
+            "https://en.wikipedia.org/wiki/Art",
+            "https://en.wikipedia.org/wiki/Aesthetics",
+            "https://en.wikipedia.org/wiki/Philosophy"
+        ],
+        "steps": 4
+    },
+
     # Psychology Path
     "https://en.wikipedia.org/wiki/Psychology": {
         "path": [
@@ -76,6 +122,18 @@ predefined_paths = {
             "https://en.wikipedia.org/wiki/Thought",
             "https://en.wikipedia.org/wiki/Cognition",
             "https://en.wikipedia.org/wiki/Action_(philosophy)",
+            "https://en.wikipedia.org/wiki/Philosophy"
+        ],
+        "steps": 5
+    },
+
+    # Technology Path
+    "https://en.wikipedia.org/wiki/Technology": {
+        "path": [
+            "https://en.wikipedia.org/wiki/Science",
+            "https://en.wikipedia.org/wiki/Scientific_method",
+            "https://en.wikipedia.org/wiki/Empirical_evidence",
+            "https://en.wikipedia.org/wiki/Evidence",
             "https://en.wikipedia.org/wiki/Philosophy"
         ],
         "steps": 5
@@ -150,62 +208,117 @@ predefined_paths = {
             "https://en.wikipedia.org/wiki/Physics"
         ],
         "steps": 9
+    },
+
+    # Philosophy Path
+    "https://en.wikipedia.org/wiki/Philosophy": {
+        "path": [
+            "https://en.wikipedia.org/wiki/Existence",
+            "https://en.wikipedia.org/wiki/Reality",
+            "https://en.wikipedia.org/wiki/Universe",
+            "https://en.wikipedia.org/wiki/Space",
+            "https://en.wikipedia.org/wiki/Three-dimensional_space",
+            "https://en.wikipedia.org/wiki/Geometry",
+            "https://en.wikipedia.org/wiki/Mathematics",
+            "https://en.wikipedia.org/wiki/Theory",
+            "https://en.wikipedia.org/wiki/Reason",
+            "https://en.wikipedia.org/wiki/Consciousness",
+            "https://en.wikipedia.org/wiki/Awareness",
+            "https://en.wikipedia.org/wiki/Philosophy"
+        ],
+        "steps": 12
     }
 }
 
-# Define is_valid_wikipedia_url function
-def is_valid_wikipedia_url(url):
-    """
-    Validate if the given URL is a valid Wikipedia URL.
-    """
-    try:
-        parsed_url = urlparse(url)
-        # Check for valid Wikipedia domain
-        return parsed_url.scheme in {"http", "https"} and "wikipedia.org" in parsed_url.netloc
-    except Exception as e:
-        logging.error(f"Error validating URL: {url} - {e}")
-        return False
 
-# Traversal logic (traverse_wikipedia) remains unchanged
-def traverse_wikipedia(start_url, max_iterations):
+# Selenium WebDriver setup
+def setup_driver():
     options = Options()
-    options.add_argument("--headless")
+    options.add_argument("--headless")  # Run Chrome in headless mode
     options.add_argument("--disable-gpu")
     options.add_argument("--no-sandbox")
-
+    options.add_argument("--disable-dev-shm-usage")
     driver = webdriver.Chrome(options=options)
-    visited_urls = []
+    return driver
+
+# Traverse Wikipedia pages
+def traverse_wikipedia(start_url, max_iterations):
+    driver = setup_driver()
+    visited_urls = set()
+    results = {"path": [], "steps": 0, "last_link": None}
+
+    # Check if starting from Philosophy and return the predefined Philosophy path directly
+    if start_url == "https://en.wikipedia.org/wiki/Philosophy":
+        results.update({
+            "path": predefined_paths[start_url]["path"],
+            "steps": predefined_paths[start_url]["steps"],
+            "last_link": predefined_paths[start_url]["path"][-1]
+        })
+        logging.info(f"Starting from Philosophy: Returning predefined path with {predefined_paths[start_url]['steps']} steps.")
+        return results
+
     try:
-        for _ in range(max_iterations):
-            if start_url in predefined_paths:
-                result = predefined_paths[start_url]
-                return {
-                    "path": visited_urls + result["path"],
-                    "steps": len(visited_urls) + result["steps"]
-                }
+        current_url = start_url
+        logging.info(f"Starting traversal from: {current_url}")
 
-            driver.get(start_url)
-            visited_urls.append(start_url)
-            first_link = WebDriverWait(driver, app.config["SELENIUM_WAIT_TIME"]).until(
-                EC.presence_of_element_located((By.CSS_SELECTOR, "p > a:not(.new)"))
-            )
-            next_url = first_link.get_attribute("href")
+        for step in range(max_iterations):
+            if current_url in predefined_paths:
+                predefined_path = predefined_paths[current_url]
 
-            if next_url in visited_urls:
-                return {"error": "Loop detected.", "path": visited_urls}
+                # Avoid adding the same URL if it's already in the visited path
+                for url in predefined_path["path"]:
+                    if url not in visited_urls:
+                        visited_urls.add(url)
+                        results["path"].append(url)
+                        results["steps"] += 1
+                        logging.info(f"Step {results['steps']}: Added predefined URL: {url}")
+                        current_url = url
+                    if current_url == "https://en.wikipedia.org/wiki/Philosophy":
+                        results.update({"steps": results["steps"], "last_link": current_url})
+                        logging.info(f"Reached Philosophy URL: {current_url}")
+                        return results
+                continue
 
-            start_url = next_url
-    except (TimeoutException, NoSuchElementException):
-        return {"error": "No valid links found.", "path": visited_urls}
+            if current_url in visited_urls:
+                return {**results, "error": f"Traversal ended in a loop at: {current_url}"}
+
+            visited_urls.add(current_url)
+            results["path"].append(current_url)
+            logging.info(f"Step {results['steps'] + 1}: Visiting URL: {current_url}")
+
+            if current_url == app.config["PHILOSOPHY_URL"]:
+                results.update({"steps": results["steps"] + 1, "last_link": current_url})
+                logging.info(f"Reached Philosophy URL: {current_url}")
+                return results
+
+            driver.get(current_url)
+            next_url = find_first_anchor(driver)
+
+            if not next_url:
+                return {**results, "error": "No valid anchor link found in content."}
+
+            current_url = next_url
+
+        return {**results, "error": "Maximum iterations reached.", "visited_count": len(visited_urls)}
+    except TimeoutException:
+        return {**results, "error": "Timed out while waiting for page content."}
     except WebDriverException as e:
-        logging.error(f"WebDriver error: {e}")
-        return {"error": "WebDriver error."}
+        logging.error(f"WebDriver exception: {e}")
+        return {**results, "error": "Error occurred with WebDriver."}
     finally:
         driver.quit()
 
-    return {"error": "Max iterations reached.", "path": visited_urls}
+# Flask CORS preflight handling
+@app.before_request
+def before_request():
+    if request.method == "OPTIONS":
+        response = make_response()
+        response.headers['Access-Control-Allow-Origin'] = os.getenv("ALLOWED_ORIGINS", "https://first-link-delta.vercel.app")
+        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
+        return response
 
-# Route to start traversal
+# Flask route to start traversal
 @app.route("/start-traversal", methods=["POST"])
 def start_traversal():
     data = request.get_json()
@@ -216,6 +329,25 @@ def start_traversal():
 
     result = traverse_wikipedia(start_url, app.config["MAX_ITERATIONS"])
     return jsonify(result)
+
+# Validates if the given URL is a valid Wikipedia URL
+def is_valid_wikipedia_url(url):
+    return re.match(r"https:\/\/en\.wikipedia\.org\/wiki\/.*", url)
+
+# Finds the first valid anchor on the Wikipedia page
+def find_first_anchor(driver):
+    try:
+        wait = WebDriverWait(driver, app.config["SELENIUM_WAIT_TIME"])
+        content_div = wait.until(EC.presence_of_element_located((By.ID, "mw-content-text")))
+        anchor_tags = content_div.find_elements(By.TAG_NAME, "a")
+
+        for tag in anchor_tags:
+            href = tag.get_attribute("href")
+            if href and re.match(r"https:\/\/en\.wikipedia\.org\/wiki\/.*", href):
+                return href
+        return None
+    except NoSuchElementException:
+        return None
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=10000)
