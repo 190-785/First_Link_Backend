@@ -22,15 +22,13 @@ RUN apt-get update && apt-get install -y \
     fonts-liberation \
     libappindicator3-1 \
     xdg-utils \
+    chromium-driver \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Google Chrome (Stable Version)
 RUN curl -sSL https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb -o google-chrome-stable_current_amd64.deb \
     && apt install -y ./google-chrome-stable_current_amd64.deb \
     && rm google-chrome-stable_current_amd64.deb
-
-# Install ChromeDriver for Selenium (automatically downloaded version)
-RUN apt-get install -y chromium-driver
 
 # Set up the working directory
 WORKDIR /app
@@ -47,5 +45,8 @@ COPY . /app
 # Expose port 10000 (or whichever port your app runs on)
 EXPOSE 10000
 
-# Run the Flask app
-CMD ["python", "app.py"]
+# Set environment variable to tell Flask it's in production (optional)
+ENV FLASK_ENV=production
+
+# Run the Flask app with Gunicorn for production use
+CMD ["gunicorn", "--bind", "0.0.0.0:10000", "app:app"]

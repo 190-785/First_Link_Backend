@@ -1,16 +1,15 @@
-from flask import Flask, jsonify, request, make_response
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.chrome.options import Options  # Correctly imported
 from dotenv import load_dotenv
 import os
 import chromedriver_autoinstaller
 import logging
-from urllib.parse import urlparse
-import re
+from urllib.parse import urlparse, urlunparse
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, WebDriverException
 
 # Automatically install the appropriate ChromeDriver
@@ -231,123 +230,86 @@ predefined_paths = {
 }
 
 
-# Selenium WebDriver setup
-def setup_driver():
+def is_valid_wikipedia_url(url):
+    """
+    Validate if the given URL is a valid Wikipedia URL.
+    """
+    try:
+        parsed_url = urlparse(url)
+        # Clean the URL by removing fragments (e.g., #History)
+        cleaned_url = urlunparse(parsed_url._replace(fragment=""))
+        return cleaned_url.startswith("https://en.wikipedia.org/wiki/") and "wikipedia.org" in parsed_url.netloc
+    except Exception as e:
+        logging.error(f"Error validating URL: {url} - {e}")
+        return False
+
+
+def traverse_wikipedia(start_url, max_iterations):
+    """
+    Traverse Wikipedia pages starting from the given URL.
+    """
     options = Options()
-    options.add_argument("--headless")  # Run Chrome in headless mode
+    options.add_argument("--headless")
     options.add_argument("--disable-gpu")
     options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
+
     driver = webdriver.Chrome(options=options)
-    return driver
-
-# Traverse Wikipedia pages
-def traverse_wikipedia(start_url, max_iterations):
-    driver = setup_driver()
-    visited_urls = set()
-    results = {"path": [], "steps": 0, "last_link": None}
-
-    # Check if starting from Philosophy and return the predefined Philosophy path directly
-    if start_url == "https://en.wikipedia.org/wiki/Philosophy":
-        results.update({
-            "path": predefined_paths[start_url]["path"],
-            "steps": predefined_paths[start_url]["steps"],
-            "last_link": predefined_paths[start_url]["path"][-1]
-        })
-        logging.info(f"Starting from Philosophy: Returning predefined path with {predefined_paths[start_url]['steps']} steps.")
-        return results
-
+    visited_urls = []
     try:
-        current_url = start_url
-        logging.info(f"Starting traversal from: {current_url}")
+        for _ in range(max_iterations):
+            if start_url in predefined_paths:
+                result = predefined_paths[start_url]
+                return {
+                    "path": visited_urls + result["path"],
+                    "steps": len(visited_urls) + result["steps"]
+                }
 
-        for step in range(max_iterations):
-            if current_url in predefined_paths:
-                predefined_path = predefined_paths[current_url]
+            driver.get(start_url)
+            visited_urls.append(start_url)
+            logging.info(f"Visiting: {start_url}")
 
-                # Avoid adding the same URL if it's already in the visited path
-                for url in predefined_path["path"]:
-                    if url not in visited_urls:
-                        visited_urls.add(url)
-                        results["path"].append(url)
-                        results["steps"] += 1
-                        logging.info(f"Step {results['steps']}: Added predefined URL: {url}")
-                        current_url = url
-                    if current_url == "https://en.wikipedia.org/wiki/Philosophy":
-                        results.update({"steps": results["steps"], "last_link": current_url})
-                        logging.info(f"Reached Philosophy URL: {current_url}")
-                        return results
-                continue
+            try:
+                first_link = WebDriverWait(driver, app.config["SELENIUM_WAIT_TIME"]).until(
+                    EC.presence_of_element_located((By.CSS_SELECTOR, "p > a:not(.new)"))
+                )
+                next_url = first_link.get_attribute("href")
+            except TimeoutException:
+                return {"error": "Timeout - No valid links found.", "path": visited_urls}
+            except NoSuchElementException:
+                return {"error": "No valid links found on page.", "path": visited_urls}
 
-            if current_url in visited_urls:
-                return {**results, "error": f"Traversal ended in a loop at: {current_url}"}
+            logging.info(f"Next link: {next_url}")
 
-            visited_urls.add(current_url)
-            results["path"].append(current_url)
-            logging.info(f"Step {results['steps'] + 1}: Visiting URL: {current_url}")
+            # Avoid loops by checking if the URL has already been visited
+            if next_url in visited_urls:
+                logging.warning(f"Loop detected: {next_url}")
+                return {"error": "Loop detected.", "path": visited_urls}
 
-            if current_url == app.config["PHILOSOPHY_URL"]:
-                results.update({"steps": results["steps"] + 1, "last_link": current_url})
-                logging.info(f"Reached Philosophy URL: {current_url}")
-                return results
-
-            driver.get(current_url)
-            next_url = find_first_anchor(driver)
-
-            if not next_url:
-                return {**results, "error": "No valid anchor link found in content."}
-
-            current_url = next_url
-
-        return {**results, "error": "Maximum iterations reached.", "visited_count": len(visited_urls)}
-    except TimeoutException:
-        return {**results, "error": "Timed out while waiting for page content."}
+            start_url = next_url
     except WebDriverException as e:
-        logging.error(f"WebDriver exception: {e}")
-        return {**results, "error": "Error occurred with WebDriver."}
+        logging.error(f"WebDriver error: {e}")
+        return {"error": "WebDriver error.", "path": visited_urls}
     finally:
         driver.quit()
 
-# Flask CORS preflight handling
-@app.before_request
-def before_request():
-    if request.method == "OPTIONS":
-        response = make_response()
-        response.headers['Access-Control-Allow-Origin'] = os.getenv("ALLOWED_ORIGINS", "https://first-link-delta.vercel.app")
-        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
-        response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
-        return response
+    return {"error": "Max iterations reached.", "path": visited_urls}
 
-# Flask route to start traversal
+
 @app.route("/start-traversal", methods=["POST"])
 def start_traversal():
+    """
+    Start traversal from a given Wikipedia URL.
+    """
     data = request.get_json()
     start_url = data.get("start_url", app.config["PHILOSOPHY_URL"])
 
     if not is_valid_wikipedia_url(start_url):
+        logging.error(f"Invalid Wikipedia URL: {start_url}")
         return jsonify({"error": "Invalid Wikipedia URL"}), 400
 
     result = traverse_wikipedia(start_url, app.config["MAX_ITERATIONS"])
     return jsonify(result)
 
-# Validates if the given URL is a valid Wikipedia URL
-def is_valid_wikipedia_url(url):
-    return re.match(r"https:\/\/en\.wikipedia\.org\/wiki\/.*", url)
-
-# Finds the first valid anchor on the Wikipedia page
-def find_first_anchor(driver):
-    try:
-        wait = WebDriverWait(driver, app.config["SELENIUM_WAIT_TIME"])
-        content_div = wait.until(EC.presence_of_element_located((By.ID, "mw-content-text")))
-        anchor_tags = content_div.find_elements(By.TAG_NAME, "a")
-
-        for tag in anchor_tags:
-            href = tag.get_attribute("href")
-            if href and re.match(r"https:\/\/en\.wikipedia\.org\/wiki\/.*", href):
-                return href
-        return None
-    except NoSuchElementException:
-        return None
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=10000)
+    app.run(debug=False, host="0.0.0.0", port=10000)
