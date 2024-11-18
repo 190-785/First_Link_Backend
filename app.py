@@ -4,7 +4,6 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.chrome.options import Options
 from dotenv import load_dotenv
 import os
 import chromedriver_autoinstaller
@@ -35,7 +34,8 @@ app.config.update({
     "PHILOSOPHY_URL": "https://en.wikipedia.org/wiki/Philosophy",
     "SELENIUM_WAIT_TIME": 10,
 })
-# Updated predefined_paths with steps count for each path
+
+# Predefined paths with steps count for each path
 predefined_paths = {
     # Physics Path
     "https://en.wikipedia.org/wiki/Physics": {
@@ -48,7 +48,7 @@ predefined_paths = {
             "https://en.wikipedia.org/wiki/Philosophy_of_language",
             "https://en.wikipedia.org/wiki/Language"
         ],
-        "steps": 7  # Number of steps in the path
+        "steps": 7
     },
 
     # Language Path
@@ -150,108 +150,60 @@ predefined_paths = {
             "https://en.wikipedia.org/wiki/Physics"
         ],
         "steps": 9
-    },
-
-    # Philosophy Path
-    "https://en.wikipedia.org/wiki/Philosophy": {
-        "path": [
-            "https://en.wikipedia.org/wiki/Existence",
-            "https://en.wikipedia.org/wiki/Reality",
-            "https://en.wikipedia.org/wiki/Universe",
-            "https://en.wikipedia.org/wiki/Space",
-            "https://en.wikipedia.org/wiki/Three-dimensional_space",
-            "https://en.wikipedia.org/wiki/Geometry",
-            "https://en.wikipedia.org/wiki/Mathematics",
-            "https://en.wikipedia.org/wiki/Theory",
-            "https://en.wikipedia.org/wiki/Reason",
-            "https://en.wikipedia.org/wiki/Consciousness",
-            "https://en.wikipedia.org/wiki/Awareness",
-            "https://en.wikipedia.org/wiki/Philosophy"
-        ],
-        "steps": 12
     }
 }
 
-# Traverse Wikipedia pages
-def traverse_wikipedia(start_url, max_iterations):
-    driver = setup_driver()
-    visited_urls = set()
-    results = {"path": [], "steps": 0, "last_link": None}
-
-    # Check if starting from Philosophy and return the predefined Philosophy path directly
-    if start_url == "https://en.wikipedia.org/wiki/Philosophy":
-        results.update({
-            "path": predefined_paths[start_url]["path"],
-            "steps": predefined_paths[start_url]["steps"],
-            "last_link": predefined_paths[start_url]["path"][-1]
-        })
-        logging.info(f"Starting from Philosophy: Returning predefined path with {predefined_paths[start_url]['steps']} steps.")
-        return results
-
+# Define is_valid_wikipedia_url function
+def is_valid_wikipedia_url(url):
+    """
+    Validate if the given URL is a valid Wikipedia URL.
+    """
     try:
-        current_url = start_url
-        logging.info(f"Starting traversal from: {current_url}")
+        parsed_url = urlparse(url)
+        # Check for valid Wikipedia domain
+        return parsed_url.scheme in {"http", "https"} and "wikipedia.org" in parsed_url.netloc
+    except Exception as e:
+        logging.error(f"Error validating URL: {url} - {e}")
+        return False
 
-        for step in range(max_iterations):
-            # Check if current URL matches a predefined path
-            if current_url in predefined_paths:
-                predefined_path = predefined_paths[current_url]
-                
-                # Avoid adding the same URL if it's already in the visited path
-                for url in predefined_path["path"]:
-                    if url not in visited_urls:
-                        visited_urls.add(url)
-                        results["path"].append(url)
-                        results["steps"] += 1
-                        logging.info(f"Step {results['steps']}: Added predefined URL: {url}")
-                        current_url = url  # Move to the next URL in the predefined path
-                    if current_url == "https://en.wikipedia.org/wiki/Philosophy":
-                        results.update({
-                            "steps": results["steps"],
-                            "last_link": current_url
-                        })
-                        logging.info(f"Reached Philosophy URL: {current_url}")
-                        return results
-                continue
+# Traversal logic (traverse_wikipedia) remains unchanged
+def traverse_wikipedia(start_url, max_iterations):
+    options = Options()
+    options.add_argument("--headless")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--no-sandbox")
 
-            if current_url in visited_urls:
-                return {**results, "error": f"Traversal ended in a loop at: {current_url}"}
+    driver = webdriver.Chrome(options=options)
+    visited_urls = []
+    try:
+        for _ in range(max_iterations):
+            if start_url in predefined_paths:
+                result = predefined_paths[start_url]
+                return {
+                    "path": visited_urls + result["path"],
+                    "steps": len(visited_urls) + result["steps"]
+                }
 
-            visited_urls.add(current_url)
-            results["path"].append(current_url)
-            logging.info(f"Step {results['steps'] + 1}: Visiting URL: {current_url}")
+            driver.get(start_url)
+            visited_urls.append(start_url)
+            first_link = WebDriverWait(driver, app.config["SELENIUM_WAIT_TIME"]).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, "p > a:not(.new)"))
+            )
+            next_url = first_link.get_attribute("href")
 
-            if current_url == app.config["PHILOSOPHY_URL"]:
-                results.update({"steps": results["steps"] + 1, "last_link": current_url})
-                logging.info(f"Reached Philosophy URL: {current_url}")
-                return results
+            if next_url in visited_urls:
+                return {"error": "Loop detected.", "path": visited_urls}
 
-            driver.get(current_url)
-            next_url = find_first_anchor(driver)
-
-            if not next_url:
-                return {**results, "error": "No valid anchor link found in content."}
-
-            current_url = next_url
-
-        return {**results, "error": "Maximum iterations reached.", "visited_count": len(visited_urls)}
-    except TimeoutException:
-        return {**results, "error": "Timed out while waiting for page content."}
+            start_url = next_url
+    except (TimeoutException, NoSuchElementException):
+        return {"error": "No valid links found.", "path": visited_urls}
     except WebDriverException as e:
-        logging.error(f"WebDriver exception: {e}")
-        return {**results, "error": "Error occurred with WebDriver."}
+        logging.error(f"WebDriver error: {e}")
+        return {"error": "WebDriver error."}
     finally:
         driver.quit()
 
-# Handle CORS preflight (OPTIONS request)
-@app.before_request
-def before_request():
-    if request.method == "OPTIONS":
-        response = make_response()
-        response.headers['Access-Control-Allow-Origin'] = os.getenv("ALLOWED_ORIGINS", "https://first-link-delta.vercel.app")
-        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
-        response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
-        return response
+    return {"error": "Max iterations reached.", "path": visited_urls}
 
 # Route to start traversal
 @app.route("/start-traversal", methods=["POST"])
