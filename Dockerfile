@@ -6,7 +6,7 @@ ENV PYTHONUNBUFFERED=1 \
     LANG=C.UTF-8 \
     PORT=10000
 
-# Install only necessary system dependencies
+# Install necessary system dependencies for Chrome and Python
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     libglib2.0-0 \
@@ -23,7 +23,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies
+# Upgrade pip to avoid dependency issues
+RUN pip install --upgrade pip
+
+# Copy requirements.txt and install dependencies
 COPY requirements.txt /app/requirements.txt
 WORKDIR /app
 RUN pip install --no-cache-dir -r requirements.txt
@@ -36,4 +39,3 @@ EXPOSE $PORT
 
 # Command to run the app with Gunicorn
 CMD ["gunicorn", "--bind", "0.0.0.0:10000", "--timeout", "120", "app:app"]
-
