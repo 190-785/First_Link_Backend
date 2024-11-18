@@ -1,41 +1,24 @@
-# Use a lightweight Python runtime as the base image
-FROM python:3.11-slim
+# Use a lightweight Python image
+FROM python:3.10-slim
 
-# Set environment variables
-ENV PYTHONUNBUFFERED=1 \
-    LANG=C.UTF-8 \
-    PORT=10000
+# Install build tools and Rust (if needed)
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libffi-dev \
+    cargo \
+    && apt-get clean
 
-# Install necessary system dependencies for Chrome and Python
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
-    libglib2.0-0 \
-    libnss3 \
-    libxss1 \
-    libgdk-pixbuf2.0-0 \
-    libatk-bridge2.0-0 \
-    libgtk-3-0 \
-    libdbus-1-3 \
-    libasound2 && \
-    curl -sSL https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb -o /tmp/google-chrome.deb && \
-    apt-get install -y /tmp/google-chrome.deb && \
-    rm /tmp/google-chrome.deb && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
-# Upgrade pip to avoid dependency issues
-RUN pip install --upgrade pip
-
-# Copy requirements.txt and install dependencies
-COPY requirements.txt /app/requirements.txt
+# Set working directory
 WORKDIR /app
+
+# Copy requirements and install
+COPY requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY . /app
 
-# Expose the app port
-EXPOSE $PORT
-
-# Command to run the app with Gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:10000", "--timeout", "120", "app:app"]
+# Expose port and run the app
+EXPOSE 10000
+CMD ["python", "app.py"]
