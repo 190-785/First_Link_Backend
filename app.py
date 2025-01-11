@@ -261,7 +261,7 @@ def traverse_wikipedia(start_url, max_iterations):
                 result = predefined_paths[start_url]
                 return {
                     "path": visited_urls + result["path"],
-                    "steps": len(visited_urls) + result["steps"]
+                    "steps": len(visited_urls) + len(result["path"])
                 }
 
             driver.get(start_url)
