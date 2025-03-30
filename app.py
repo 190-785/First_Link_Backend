@@ -23,7 +23,7 @@ load_dotenv()
 
 # Initialize Flask app
 app = Flask(__name__)
-allowed_origins = os.getenv("ALLOWED_ORIGINS", "https://first-link-delta.vercel.app").split(",")
+allowed_origins = os.getenv("ALLOWED_ORIGINS", "https://first-link-delta.vercel.app/").split(",")
 CORS(app, resources={r"/*": {"origins": allowed_origins}}, supports_credentials=True)
 
 # App configurations
