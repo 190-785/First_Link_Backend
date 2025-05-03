@@ -1,0 +1,86 @@
+{
+  "https://en.wikipedia.org/wiki/Physics": [
+    "https://en.wikipedia.org/wiki/Scientific",
+    "https://en.wikipedia.org/wiki/Scientific_method",
+    "https://en.wikipedia.org/wiki/Empirical_evidence",
+    "https://en.wikipedia.org/wiki/Evidence",
+    "https://en.wikipedia.org/wiki/Proposition",
+    "https://en.wikipedia.org/wiki/Philosophy_of_language",
+    "https://en.wikipedia.org/wiki/Language"
+  ],
+  "https://en.wikipedia.org/wiki/Language": [
+    "https://en.wikipedia.org/wiki/Communication",
+    "https://en.wikipedia.org/wiki/Information",
+    "https://en.wikipedia.org/wiki/Abstraction",
+    "https://en.wikipedia.org/wiki/Rule_of_inference",
+    "https://en.wikipedia.org/wiki/Logic",
+    "https://en.wikipedia.org/wiki/Logical_reasoning",
+    "https://en.wikipedia.org/wiki/Mind",
+    "https://en.wikipedia.org/wiki/Thought",
+    "https://en.wikipedia.org/wiki/Cognition",
+    "https://en.wikipedia.org/wiki/Action_(philosophy)",
+    "https://en.wikipedia.org/wiki/Philosophy"
+  ],
+  "https://en.wikipedia.org/wiki/Psychology": [
+    "https://en.wikipedia.org/wiki/Mind",
+    "https://en.wikipedia.org/wiki/Thought",
+    "https://en.wikipedia.org/wiki/Cognition",
+    "https://en.wikipedia.org/wiki/Action_(philosophy)",
+    "https://en.wikipedia.org/wiki/Philosophy"
+  ],
+  "https://en.wikipedia.org/wiki/Sport": [
+    "https://en.wikipedia.org/wiki/Physical_activity",
+    "https://en.wikipedia.org/wiki/Skeletal_muscle",
+    "https://en.wikipedia.org/wiki/Vertebrate",
+    "https://en.wikipedia.org/wiki/Deuterostome",
+    "https://en.wikipedia.org/wiki/Bilateria",
+    "https://en.wikipedia.org/wiki/Clade",
+    "https://en.wikipedia.org/wiki/Phylogenetics",
+    "https://en.wikipedia.org/wiki/Biology"
+  ],
+  "https://en.wikipedia.org/wiki/Biology": [
+    "https://en.wikipedia.org/wiki/Life",
+    "https://en.wikipedia.org/wiki/Matter",
+    "https://en.wikipedia.org/wiki/Classical_physics",
+    "https://en.wikipedia.org/wiki/Physics"
+  ],
+  "https://en.wikipedia.org/wiki/History": [
+    "https://en.wikipedia.org/wiki/Ancient_Greek",
+    "https://en.wikipedia.org/wiki/Greek_language",
+    "https://en.wikipedia.org/wiki/Ancient_Greek"
+  ],
+  "https://en.wikipedia.org/wiki/Chemistry": [
+    "https://en.wikipedia.org/wiki/Matter",
+    "https://en.wikipedia.org/wiki/Classical_physics",
+    "https://en.wikipedia.org/wiki/Physics"
+  ],
+  "https://en.wikipedia.org/wiki/Politics": [
+    "https://en.wikipedia.org/wiki/Decision-making",
+    "https://en.wikipedia.org/wiki/Psychology"
+  ],
+  "https://en.wikipedia.org/wiki/India": [
+    "https://en.wikipedia.org/wiki/South_Asia",
+    "https://en.wikipedia.org/wiki/Subregion#Asia",
+    "https://en.wikipedia.org/wiki/Region",
+    "https://en.wikipedia.org/wiki/Geography",
+    "https://en.wikipedia.org/wiki/Earth",
+    "https://en.wikipedia.org/wiki/Planet",
+    "https://en.wikipedia.org/wiki/Hydrostatic_equilibrium",
+    "https://en.wikipedia.org/wiki/Fluid_mechanics",
+    "https://en.wikipedia.org/wiki/Physics"
+  ],
+  "https://en.wikipedia.org/wiki/Philosophy": [
+    "https://en.wikipedia.org/wiki/Existence",
+    "https://en.wikipedia.org/wiki/Reality",
+    "https://en.wikipedia.org/wiki/Universe",
+    "https://en.wikipedia.org/wiki/Space",
+    "https://en.wikipedia.org/wiki/Three-dimensional_space",
+    "https://en.wikipedia.org/wiki/Geometry",
+    "https://en.wikipedia.org/wiki/Mathematics",
+    "https://en.wikipedia.org/wiki/Theory",
+    "https://en.wikipedia.org/wiki/Reason",
+    "https://en.wikipedia.org/wiki/Consciousness",
+    "https://en.wikipedia.org/wiki/Awareness",
+    "https://en.wikipedia.org/wiki/Philosophy"
+  ]
+}
