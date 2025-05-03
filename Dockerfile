@@ -1,49 +1,45 @@
-# Use an official Python runtime as a parent image
-FROM python:3.12-slim
-
-# Set environment variables for non-interactive installation
+# Stage 1: Build wheels
+FROM python:3.12.2-slim AS builder
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install system dependencies required for Selenium and Chrome
-RUN apt-get update && apt-get install -y \
-    wget \
-    curl \
-    unzip \
-    ca-certificates \
-    libnss3 \
-    libgdk-pixbuf2.0-0 \
-    libatk-bridge2.0-0 \
-    libatk1.0-0 \
-    libgdk-pixbuf2.0-0 \
-    libx11-xcb1 \
-    libxss1 \
-    libappindicator3-1 \
-    fonts-liberation \
-    xdg-utils \
+# Install Chromium (no driver) and build tools
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
     chromium \
-    chromium-driver \
-    && rm -rf /var/lib/apt/lists/*
+    wget \
+    ca-certificates \
+ && rm -rf /var/lib/apt/lists/*
 
-# Remove the separate chromium installation line to avoid version mismatch
-# RUN apt-get update && apt-get install -y chromium chromium-driver
+WORKDIR /src
+COPY requirements.txt ./
 
-# Set up the working directory
+# Build wheels to speed up runtime installs
+RUN pip install --upgrade pip \
+ && pip wheel --no-cache-dir --no-deps --wheel-dir=/wheels -r requirements.txt
+
+# Stage 2: Final lightweight image
+FROM python:3.12.2-slim
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install only runtime Chromium
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends chromium \
+ && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
+COPY --from=builder /wheels /wheels
+# Install all Python deps from wheels
+RUN pip install --no-cache-dir /wheels/*
 
-# Copy the requirements.txt into the container
-COPY requirements.txt /app/requirements.txt
-
-# Upgrade pip to the latest version
-RUN pip install --upgrade pip
-
-# Install the Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Copy the application code into the container
+# Copy source code
 COPY . /app
 
-# Expose port 10000 (or whichever port your app runs on)
+# Use non-root for security
+RUN useradd --create-home appuser
+USER appuser
+
+# Expose app port
 EXPOSE 10000
 
-# Run the Flask app with Gunicorn for production use
+# Launch Gunicorn
 CMD ["gunicorn", "--bind", "0.0.0.0:10000", "app:app"]
