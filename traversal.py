@@ -34,15 +34,15 @@ def find_first_link(url: str) -> str | None:
         if not content:
             return None
 
-        for p in content.find_all("p", recursive=True):
-            if not p.text.strip():
-                continue
-            cleaned = remove_parentheses(str(p))
-            p_clean = BeautifulSoup(cleaned, "html.parser")
-            for a in p_clean.find_all("a", href=re.compile(r"^/wiki/")):
-                href = a.get("href")
-                if href and not href.startswith("/wiki/Help:"):
+        anchor_tags = content.find_all("a")
+        for tag in anchor_tags:
+            href = tag.get("href")
+            if href:
+                if re.match(r"^/wiki/.*", href) and not href.startswith("/wiki/Help:"):
                     return "https://en.wikipedia.org" + href
+                elif re.match(r"^https://en\.wikipedia\.org/wiki/.*", href):
+                    return href
+        return None
     except Exception as e:
         logger.exception("Error in find_first_link: %s", e)
     return None
