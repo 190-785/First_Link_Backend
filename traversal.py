@@ -18,8 +18,9 @@ except Exception as e:
 
 
 def is_valid_wikipedia_url(url: str) -> bool:
-    pattern = r"^https?://en\.wikipedia\.org/wiki/[^ ]+$"
-    return bool(re.match(pattern, url))
+    pattern = r"^https?://en\.wikipedia\.org/wiki/[^\s#]+$"
+    return re.match(pattern, url.strip()) is not None
+
 
 
 def find_first_link(url: str) -> str | None:
