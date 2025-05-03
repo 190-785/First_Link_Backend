@@ -16,6 +16,12 @@ from selenium.common.exceptions import TimeoutException, NoSuchElementException
 
 import chromedriver_autoinstaller
 
+# Upgrade pip to the latest version programmatically
+import subprocess
+import sys
+
+subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade", "pip"])
+
 # Automatically install the appropriate ChromeDriver
 chromedriver_autoinstaller.install()
 

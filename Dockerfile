@@ -1,5 +1,5 @@
 # Use an official Python runtime as a parent image
-FROM python:3.11-slim
+FROM python:3.12-slim
 
 # Set environment variables for non-interactive installation
 ENV DEBIAN_FRONTEND=noninteractive
@@ -32,6 +32,9 @@ WORKDIR /app
 
 # Copy the requirements.txt into the container
 COPY requirements.txt /app/requirements.txt
+
+# Upgrade pip to the latest version
+RUN pip install --upgrade pip
 
 # Install the Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
