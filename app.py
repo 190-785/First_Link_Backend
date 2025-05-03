@@ -41,14 +41,12 @@ def start_traversal():
     return jsonify(result), status
 
 
-# Health check route (useful for debugging)
 @app.route("/", methods=["GET"])
 def health_check():
     return jsonify({"status": "Backend is running"})
 
 
 if __name__ == "__main__":
-    # Ensure the app uses the port from Railway (or defaults to 10000 locally)
-    port = int(os.environ.get("PORT", 10000))  # Use $PORT env variable for deployment
+    port = int(os.environ.get("PORT", 10000))
     debug_mode = Config.ENV == "development"
     app.run(host="0.0.0.0", port=port, debug=debug_mode)
