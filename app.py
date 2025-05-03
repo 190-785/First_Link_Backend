@@ -33,12 +33,21 @@ def start_traversal():
     data = request.get_json() or {}
     start_url = data.get("start_url", Config.PHILOSOPHY_URL)
 
+    logging.info(f"Received start_url from frontend: {start_url}")
+
     if not is_valid_wikipedia_url(start_url):
+        logging.warning(f"Rejected start_url by validator: {start_url}")
         return jsonify({"error": "Invalid Wikipedia URL"}), 400
 
     result = traverse_wikipedia(start_url)
     status = 400 if "error" in result and result.get("path") else 200
     return jsonify(result), status
+
+def is_valid_wikipedia_url(url: str) -> bool:
+    pattern = r"^https?://en\.wikipedia\.org/wiki/[^\s#]+$"
+    is_valid = re.match(pattern, url.strip()) is not None
+    logging.debug(f"Validating URL: {url.strip()} -> {is_valid}")
+    return is_valid
 
 
 @app.route("/", methods=["GET"])
