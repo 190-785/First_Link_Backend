@@ -20,13 +20,12 @@ RUN apt-get update && apt-get install -y \
     libappindicator3-1 \
     fonts-liberation \
     xdg-utils \
+    chromium \
     chromium-driver \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Google Chrome (Stable Version)
-# Removed Chrome .deb download and install due to dependency issues
-# Instead, install chromium-browser and chromium-driver from apt repositories
-RUN apt-get update && apt-get install -y chromium chromium-driver
+# Remove the separate chromium installation line to avoid version mismatch
+# RUN apt-get update && apt-get install -y chromium chromium-driver
 
 # Set up the working directory
 WORKDIR /app

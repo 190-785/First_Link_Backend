@@ -14,6 +14,8 @@ import logging
 import re
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 
+import chromedriver_autoinstaller
+
 # Automatically install the appropriate ChromeDriver
 chromedriver_autoinstaller.install()
 
