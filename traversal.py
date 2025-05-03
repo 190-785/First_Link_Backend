@@ -38,9 +38,14 @@ def find_first_link(url: str) -> str | None:
         for tag in anchor_tags:
             href = tag.get("href")
             if href:
-                if re.match(r"^/wiki/.*", href) and not href.startswith("/wiki/Help:"):
+                # Only consider main article links: start with /wiki/, exclude Help:, Special:, File:, and disambiguation pages
+                if re.match(r"^/wiki/[^:#]*$", href) and \
+                   not href.startswith(("/wiki/Help:", "/wiki/Special:", "/wiki/File:")) and \
+                   "(disambiguation)" not in href:
                     return "https://en.wikipedia.org" + href
-                elif re.match(r"^https://en\.wikipedia\.org/wiki/.*", href):
+                elif re.match(r"^https://en\.wikipedia\.org/wiki/[^:#]*$", href) and \
+                     not any(prefix in href for prefix in ["/wiki/Help:", "/wiki/Special:", "/wiki/File:"]) and \
+                     "(disambiguation)" not in href:
                     return href
         return None
     except Exception as e:
