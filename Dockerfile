@@ -24,9 +24,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Google Chrome (Stable Version)
-RUN curl -sSL https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb -o google-chrome-stable_current_amd64.deb \
-    && apt install -y ./google-chrome-stable_current_amd64.deb \
-    && rm google-chrome-stable_current_amd64.deb
+# Removed Chrome .deb download and install due to dependency issues
+# Instead, install chromium-browser and chromium-driver from apt repositories
+RUN apt-get update && apt-get install -y chromium chromium-driver
 
 # Set up the working directory
 WORKDIR /app
