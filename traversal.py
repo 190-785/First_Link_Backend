@@ -22,7 +22,6 @@ def is_valid_wikipedia_url(url: str) -> bool:
     return re.match(pattern, url.strip()) is not None
 
 
-
 def find_first_link(url: str) -> str | None:
     try:
         resp = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=10)
@@ -76,6 +75,8 @@ def traverse_wikipedia(start_url: str, max_iterations: int | None = None) -> dic
     current = start_url
     try:
         for _ in range(limit):
+            logger.info("Step %d: Visiting %s", steps, current)
+
             if current in visited:
                 return {"path": path, "steps": steps, "last_link": current,
                         "error": f"Loop detected at {current}"}
