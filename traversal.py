@@ -8,12 +8,10 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
-import chromedriver_autoinstaller
-
 from config import Config
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
 
-# Ensure ChromeDriver is installed at build time
-chromedriver_autoinstaller.install()
 logger = logging.getLogger(__name__)
 
 # Attempt to load any predefined paths
@@ -32,12 +30,15 @@ def is_valid_wikipedia_url(url: str) -> bool:
 
 def setup_driver() -> webdriver.Chrome:
     opts = Options()
-    opts.add_argument("--headless=new")
+    opts.add_argument("--headless")
     opts.add_argument("--no-sandbox")
     opts.add_argument("--disable-dev-shm-usage")
     opts.add_argument("--disable-gpu")
     opts.add_argument("--window-size=1920,1080")
-    return webdriver.Chrome(options=opts)
+
+    service = Service(ChromeDriverManager().install())
+    return webdriver.Chrome(service=service, options=opts)
+
 
 
 def find_first_anchor(driver: webdriver.Chrome) -> str | None:
