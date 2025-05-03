@@ -10,7 +10,7 @@ def traverse_parsing_only(start_url: str, max_iterations: int = Config.MAX_ITERA
     current = start_url
     for step in range(max_iterations):
         if current in visited:
-            return {"path": path, "error": f"Loop detected at {current}", "steps": step, "last_link": current}
+            return {"path": path, "error": f"Loop detected at {current}", "steps": step, "last_link": current, "error_type": "loop"}
         visited.add(current)
         path.append(current)
         if current == Config.PHILOSOPHY_URL:
@@ -23,5 +23,5 @@ def traverse_parsing_only(start_url: str, max_iterations: int = Config.MAX_ITERA
                 current = "https://en.wikipedia.org" + a['href']
                 break
         else:
-            return {"path": path, "error": "No valid anchor found", "steps": step + 1, "last_link": current}
-    return {"path": path, "error": "Maximum iterations reached", "steps": max_iterations, "last_link": current}
+            return {"path": path, "error": "No valid anchor found", "steps": step + 1, "last_link": current, "error_type": "no_valid_link"}
+    return {"path": path, "error": "Maximum iterations reached", "steps": max_iterations, "last_link": current, "error_type": "max_iterations_reached"}

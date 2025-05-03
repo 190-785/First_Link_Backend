@@ -38,10 +38,10 @@ def start_traversal():
 
     if not is_valid_wikipedia_url(start_url):
         logging.warning(f"Rejected start_url by validator: {start_url}")
-        return jsonify({"error": "Invalid Wikipedia URL"}), 400
+        return jsonify({"error": "Invalid Wikipedia URL", "error_type": "invalid_url"}), 400
 
     result = traverse_wikipedia(start_url)
-    status = 400 if "error" in result and result.get("path") else 200
+    status = 400 if "error" in result else 200
     return jsonify(result), status
 
 def is_valid_wikipedia_url(url: str) -> bool:

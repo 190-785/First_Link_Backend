@@ -84,7 +84,7 @@ def traverse_wikipedia(start_url: str, max_iterations: int | None = None) -> dic
 
             if current in visited:
                 return {"path": path, "steps": steps, "last_link": current,
-                        "error": f"Loop detected at {current}"}
+                        "error": f"Loop detected at {current}", "error_type": "loop"}
 
             visited.add(current)
             path.append(current)
@@ -96,13 +96,13 @@ def traverse_wikipedia(start_url: str, max_iterations: int | None = None) -> dic
             nxt = find_first_link(current)
             if not nxt:
                 return {"path": path, "steps": steps, "last_link": current,
-                        "error": "No valid anchor found"}
+                        "error": "No valid anchor found", "error_type": "no_valid_link"}
 
             current = nxt
 
         return {"path": path, "steps": steps, "last_link": current,
-                "error": "Maximum iterations reached"}
+                "error": "Maximum iterations reached", "error_type": "max_iterations_reached"}
 
     except Exception as e:
         logger.exception("Traversal error: %s", e)
-        return {"path": path, "steps": steps, "last_link": current, "error": str(e)}
+        return {"path": path, "steps": steps, "last_link": current, "error": str(e), "error_type": "server_error"}
