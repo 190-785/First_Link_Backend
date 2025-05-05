@@ -1,79 +1,130 @@
-# Wikipedia First Link Rule Traversal API
 
-This project implements an API that traverses Wikipedia articles based on the **First Link Rule**, where each article links to the next article in the series until it reaches the **Philosophy** page. It supports both **Selenium‑based** traversal and **Parsing‑based** traversal (using BeautifulSoup).
+
+# First Link Project
+
+An interactive full‑stack application that demonstrates Wikipedia traversal based on the “First Link Rule” — the observation that repeatedly clicking the first link in the main text of a Wikipedia article often leads to the *Philosophy* page.
+
+[Live Demo](https://first-link-delta.vercel.app)
+
+---
+
+## Table of Contents
+
+1. [About the Project](#about-the-project)
+2. [Features](#features)
+3. [Tech Stack](#tech-stack)
+4. [Repositories](#repositories)
+5. [Setup & Installation](#setup--installation)
+
+   * [Backend](#backend)
+   * [Frontend](#frontend)
+6. [Environment & Configuration](#environment--configuration)
+7. [API Endpoints](#api-endpoints)
+8. [How It Works](#how-it-works)
+9. [Custom Tailwind Configuration](#custom-tailwind-configuration)
+10. [Project Structure](#project-structure)
+11. [License](#license)
+12. [Acknowledgments](#acknowledgments)
+
+---
+
+## About the Project
+
+**First Link Project** algorithmically follows the first in‑article hyperlink on Wikipedia pages, visualizing the path until it either reaches the *Philosophy* page, encounters a loop, or hits a dead end. It cleanly separates concerns between a Python‑powered API backend and a lightning‑fast React frontend.
 
 ---
 
 ## Features
 
-- **Selenium Traversal**: Uses the browser automation tool Selenium to simulate user browsing on Wikipedia.
-- **Parsing Traversal**: Uses `requests` and `BeautifulSoup` for parsing the HTML to find the first link—no browser required.
-- **API**: Exposes a simple POST endpoint for starting the traversal with a given Wikipedia URL.
-- **Error Handling**: Detects loops, dead ends, and iteration limits with clear error messages.
+* **Live Traversal**
+  Enter any Wikipedia URL and watch the path unfold in real time.
+* **Dual Traversal Modes**
+
+  * **Parsing‑based** (BeautifulSoup) for lightweight servers
+  * **Selenium‑based** for full browser simulation
+* **Loop & Dead‑End Detection**
+  Automatically stops on cycles or articles without valid first links.
+* **Modular Architecture**
+  Independently deployable frontend/backend, containerized via Docker.
+* **Interactive UI**
+  Branded Tailwind CSS theme with reusable React components.
 
 ---
 
-## Requirements
+## Tech Stack
 
-### Python 3.12+
-
-### Docker (optional, for containerized deployments)
-
-#### Python Dependencies
-
-Install via `requirements.txt`:
-
-```bash
-Flask==2.3.2
-Flask-Cors==3.0.10
-gunicorn==20.1.0
-selenium==4.11.2
-webdriver-manager==4.0.2
-beautifulsoup4==4.12.2
-requests==2.31.0
-Werkzeug==2.3.6
-```
+* **Frontend**: React.js + Vite + Tailwind CSS
+* **Backend**: Python 3.12+, Flask, BeautifulSoup, Requests (Selenium optional)
+* **Containerization**: Docker
+* **Deployment**: Vercel (frontend), Render (backend)
 
 ---
 
-## Setup
+## Repositories
 
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/yourusername/wikipedia-first-link-rule.git
-cd wikipedia-first-link-rule
-```
-
-### 2. Install Dependencies
-
-#### Local (pip)
-
-```bash
-python3 -m venv venv
-source venv/bin/activate      # Windows: `venv\Scripts\activate`
-pip install -r requirements.txt
-```
-
-#### Containerized (Docker)
-
-```bash
-docker build -t wikipedia-traversal .
-docker run -p 10000:10000 wikipedia-traversal
-```
+* **Frontend**: [https://github.com/190-785/First\_Link](https://github.com/190-785/First_Link)
+* **Backend**: [https://github.com/190-785/First\_Link\_Backend](https://github.com/190-785/First_Link_Backend)
 
 ---
 
-## Configuration
+## Setup & Installation
 
-Environment variables are loaded via a `.env` file or your environment. Key values:
+### Backend
+
+1. Clone the backend repo
+
+   ```bash
+   git clone https://github.com/190-785/First_Link_Backend.git
+   cd First_Link_Backend
+   ```
+2. Create a virtual environment & install dependencies
+
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate      # Windows: venv\Scripts\activate
+   pip install -r requirements.txt
+   ```
+3. (Optional) Run with Docker
+
+   ```bash
+   docker build -t wikipedia-traversal .
+   docker run -p 10000:10000 wikipedia-traversal
+   ```
+4. Start the Flask server
+
+   ```bash
+   flask run --port 10000
+   ```
+
+### Frontend
+
+1. Clone the frontend repo
+
+   ```bash
+   git clone https://github.com/190-785/First_Link.git
+   cd First_Link
+   ```
+2. Install & start dev server
+
+   ```bash
+   npm install
+   npm run dev
+   ```
+3. Open in browser
+   Navigate to [http://localhost:5173](http://localhost:5173).
+
+---
+
+## Environment & Configuration
+
+Set these env variables in a `.env` file at the root of your backend directory:
 
 ```env
 FLASK_ENV=development
 SECRET_KEY=your_secret_key
 MAX_ITERATIONS=30
 PHILOSOPHY_URL=https://en.wikipedia.org/wiki/Philosophy
-ALLOWED_ORIGINS=https://yourfrontenddomain.com
+ALLOWED_ORIGINS=http://localhost:5173
 ```
 
 ---
@@ -82,104 +133,119 @@ ALLOWED_ORIGINS=https://yourfrontenddomain.com
 
 ### POST `/start-traversal`
 
-Start a traversal from a Wikipedia URL.
-
 **Request Body** (JSON):
 
 ```json
 {
-    "start_url": "https://en.wikipedia.org/wiki/Physics"
+  "start_url": "https://en.wikipedia.org/wiki/Physics"
 }
 ```
 
-**Response**:
+**Response** (JSON):
 
 ```json
 {
-    "path": [
-        "https://en.wikipedia.org/wiki/Physics",
-        "...",
-        "https://en.wikipedia.org/wiki/Philosophy"
-    ],
-    "steps": 7,
-    "last_link": "https://en.wikipedia.org/wiki/Philosophy",
-    "error": "Loop detected at ..."   // optional
+  "path": [
+    "https://en.wikipedia.org/wiki/Physics",
+    "...",
+    "https://en.wikipedia.org/wiki/Philosophy"
+  ],
+  "steps": 7,
+  "last_link": "https://en.wikipedia.org/wiki/Philosophy",
+  "error": null
 }
 ```
 
 ### GET `/`
 
-Health check:
+**Response** (JSON):
 
 ```json
 {
-    "status": "Backend is running"
+  "status": "Backend is running"
 }
 ```
 
 ---
 
-## Traversal Logic
+## How It Works
 
-### Selenium-based (`traversal.py`)
+1. **User Input**
+   Frontend sends the starting Wikipedia URL to the backend.
+2. **Traversal Engine**
 
-- Launch headless Chrome via Selenium.
-- Navigate to the page, locate the first valid `<a>` in the main content, follow it.
-- Stops on Philosophy, loop detection, or max iterations.
-
-### Parsing-based (`traversal.py` or `parsing_traversal.py`)
-
-- Use `requests.get()` to fetch HTML.
-- Use BeautifulSoup to parse `<div id="mw-content-text">` paragraphs.
-- Remove parentheses to avoid invalid links.
-- Follow the first `<a href="/wiki/...">` that isn’t a Help page.
-
----
-
-## Predefined Paths
-
-`predefined_paths.json` contains precomputed link sequences for common articles. If the start URL matches a key, the API returns the stored path immediately (fast response).
+   * **Parsing mode**: `requests` + BeautifulSoup to extract the first valid link.
+   * **Selenium mode**: headless Chrome for link extraction.
+3. **Loop/Dead‑End Detection**
+   Tracks visited URLs to prevent infinite cycles.
+4. **Termination**
+   Stops when reaching the *Philosophy* page or hitting a loop/dead‑end.
+5. **Visualization**
+   Frontend renders the full link path in a user‑friendly interface.
 
 ---
 
-## Benchmark Results
+## Custom Tailwind Configuration
 
-Running `parsing_traversal.py` shows:
+Extended in `tailwind.config.js` for a purple‑themed palette:
 
-| Method       | Avg Time (single traversal) |
-| ------------ | --------------------------- |
-| Selenium     | ~2.5 s                      |
-| Parsing-only | ~0.08 s                     |
+```js
+module.exports = {
+  theme: {
+    extend: {
+      colors: {
+        darkPurple: '#433878',
+        mediumPurple: '#7e60bf',
+        lightPurple: '#e4b1f0',
+        palePurple: '#ffe1ff',
+      },
+    },
+  },
+};
+```
 
-**Conclusion:** Parsing-only is ~30× faster and uses far less memory. Use Selenium only when necessary.
+Use in your markup:
+
+```html
+<div class="bg-darkPurple text-palePurple p-4">
+  First Link Rule
+</div>
+```
 
 ---
 
-## Docker Deployment
+## Project Structure
 
-1. **Build** the image:
-
-     ```bash
-     docker build -t wikipedia-traversal .
-     ```
-
-2. **Run** the container:
-
-     ```bash
-     docker run -p 10000:10000 wikipedia-traversal
-     ```
-
----
-
-## Troubleshooting
-
-- **404 on `/start-traversal`**: Ensure you’re POSTing to the correct route and that your deployment is serving the Flask app (not a frontend).
-- **Loop detected**: The link path has circled back to a previous article.
-- **No valid anchor found**: The page format may have changed or no valid first link exists.
-- **Max iterations reached**: Increase `MAX_ITERATIONS` in your config if needed.
+```plaintext
+.
+├── First_Link/               # React + Vite frontend
+│   ├── public/
+│   ├── src/
+│   ├── package.json
+│   └── tailwind.config.js
+└── First_Link_Backend/       # Flask backend
+    ├── app.py
+    ├── parsing_traversal.py
+    ├── traversal.py
+    ├── predefined_paths.json
+    ├── requirements.txt
+    └── Dockerfile
+```
 
 ---
 
 ## License
 
-This project is licensed under the MIT License. See the `LICENSE` file for details.
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
+This project (both frontend & backend) is licensed under the **GNU General Public License v3.0**.
+See the [LICENSE](https://github.com/190-785/First_Link_Backend/blob/main/LICENSE) file for full terms.
+
+---
+
+## Acknowledgments
+
+* **Not David** – for the inspiring “First Link Rule” video:
+  [https://youtu.be/-llumS2rA8I?feature=shared](https://youtu.be/-llumS2rA8I?feature=shared)
+* **Wikipedia** – for the open REST API that powers this project
+* **Open‑source community** – for all the incredible tools and libraries used
